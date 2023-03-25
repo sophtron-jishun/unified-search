@@ -1,0 +1,3 @@
+registry=https://sophtron-dev-156013518325.d.codeartifact.us-west-2.amazonaws.com/npm/sph-artifacts/
+//sophtron-dev-156013518325.d.codeartifact.us-west-2.amazonaws.com/npm/sph-artifacts/:always-auth=true
+//sophtron-dev-156013518325.d.codeartifact.us-west-2.amazonaws.com/npm/sph-artifacts/:_authToken=${NPM_TOKEN}

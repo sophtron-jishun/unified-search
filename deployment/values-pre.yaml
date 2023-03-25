@@ -1,0 +1,41 @@
+deploymentGroup: pre
+image:
+  repository: 156013518325.dkr.ecr.us-west-2.amazonaws.com/sophtron/svc-search
+  version:  "20230325ARM"
+
+app:
+  name: sph-search
+  fullName: sophtron-search
+  requireAuth: false
+  containerPort: 8080
+
+service:
+  port: 8080
+  minReplicas: 1
+  healthcheck:
+    port: 8080
+  
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+ingress:
+  zone: "sophtron-prod"
+  internalSubdomain: "search-int."
+  public: true
+  paths:
+    - path: /
+      type: Prefix
+      subdomain: "search." #must include trailing period "." if not empty
+env: 
+  Port: "8080"
+  LogLevel: "Debug" #"Warning" #"Info" "Debug"
+  AutoSuggestEndpoint: 'https://sophtron-prod.com/autoSuggest'
+  statsDHost: "statsd.sophtron-prod.com"
+  AwsRegion: 'us-west-2'
+  S3Bucket: 'sophtron-prod-data'
+
+secrets:
+  DataBucketAccessKey: 'data-bucket-key'
+  DataBucketAccessKeyId: 'data-bucket-key-id'
