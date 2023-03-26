@@ -29,7 +29,9 @@ async function searchInstitutions(name){
 }
 async function getPreference(partner, noDefault){
   if(partner) {
+    logger.trace(`Getting preferences for partner: ${partner}`)
     let ret = await s3Client.GetObject(`${s3Prefix}preferences/${partner}/default.json`, true);
+    logger.trace(`Preferences for partner: ${partner}:`, ret)
     if(ret){
       return ret
     }else if(noDefault){
@@ -94,7 +96,7 @@ module.exports = [
         return;
       }else{
         let pref = await getPreference(partner);
-        res.send(pref.defaultBanks)
+        res.send({institutions: pref.defaultBanks})
       }
     }
   },
@@ -134,13 +136,13 @@ module.exports = [
   },
   {
     path : 'preference',
-    params: ['partner'],
     method: 'put',
     func: async function(req, res){
       let { partner } = req.query;
       //TODO authenticate partner
       if(partner){
-        await s3Client.PutObject(`${s3Prefix}preferences/${partner}/default.json`, req.body)
+        await s3Client.PutObject(`${s3Prefix}preferences/${partner}/default.json`, JSON.stringify(req.body))
+        res.sendStatus(200)
         return;
       }
       res.sendStatus(400)
