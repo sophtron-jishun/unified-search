@@ -67,7 +67,7 @@ async function getMappings(key){
     if(!obj[item[4]]){
       obj[item[4]] = { //sophtron_id
         name: item[1],
-        id: item[2], //mx_code
+        target_id: item[2], //mx_code
         url: item[5],
         provider: 'mx' //TODO, design a convension for mappings and use dynamic value here 
       }
@@ -101,7 +101,7 @@ module.exports = [
     }
   },
   {
-    path : 'resolve',
+    path : 'institution/resolve',
     method: 'get',
     params: ['to_provider?'],
     func: async function(req, res){
@@ -120,7 +120,7 @@ module.exports = [
         }
       }
       res.send({
-        id,
+        target_id: id,
         provider: 'sophtron'
       })
     }

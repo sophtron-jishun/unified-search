@@ -1,0 +1,160 @@
+info:
+  description: Sophtron Universal institution list and search service (first draft)
+  title: Sophtron-Search
+  version: 1.0.0
+openapi: 3.0.0
+host: searh.sophtron.com
+basePath: /
+produces:
+  - application/json
+schemes:
+  - https
+components:
+
+  schemas:
+    Institution:
+      title: Institution Object
+      description: Minimized Institution schema for seraching purpose
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: Insitution display name
+        url:
+          type: string
+          description: Insitution login url
+        logo_url:
+          type: string
+          description: Insitution logo url
+        provider:
+          type: string
+          description: Name of the provider for processing the institution
+
+    Preference:
+      title: Client preference Object
+      description: An object that stores the searching preference
+      type: object
+      properties:
+        defaultProvider:
+          type: string
+          description: The default provider of the search results
+        providerMapping:
+          type: array
+          description: A mapping dictionary key-ed by institution.id and value by an institution object (where only provider field is required here)
+          items:
+            type: object
+            additionalProperties:
+              $ref: '#/components/schemas/Institution'
+        defaultBanks:
+          type: array
+          description: a default list of institutions when not searching for particular ones, aka Favorate List of Institutions
+          items:
+            $ref: '#/components/schemas/Institution'
+
+paths:
+  /api/institutions:
+    get:
+      parameters:
+        - name: query
+          in: query
+          description: the text search term
+          required: false
+          type: string
+        - name: partner
+          in: query
+          description: A partner name string for loading the search preference
+          required: false
+      description: |2-
+        Get a list of institutions that matches the search term query
+      responses:
+        "200":
+          description: list of institution
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  instituions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Institution'
+              example:
+                institutions:
+                  - id: "4b2eca34-a729-438f-844c-ba8ce51047f9"
+                    name: "Citibank"
+                    url: "https://online.citi.com/US/login.do"
+                    logo_url: "https://sophtron.com/images/banklogos/citibank.png "
+        default:
+          description: empty result
+
+  /api/institution/resolve/:to_provider:
+    get:
+      parameters:
+        - name: id
+          in: query
+          description: the id of the institution returned from initial search
+          required: true
+          type: string
+          format: uuid
+        - name: to_provider
+          in: path
+          description: resolve to specific provider if specified, otherwise provider will be loaded from preference
+          required: false
+          type: string
+        - name: partner
+          in: query
+          description: A partner name string for loading the search preference, if to_provider is specified, this argument won't make any effect
+          required: false
+      description: |2-
+        resolve an search result to specific provider's id
+      responses:
+        "200":
+          description: the minimized institution provider information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                target_id:
+                  type: string
+                provider:
+                  type: string
+              example:
+                target_id: 4b2eca34-a729-438f-844c-ba8ce51047f9
+                provider: sophtron
+        default:
+          description: Unexpected error
+  /api/preference:
+    get:
+      parameters:
+        - name: partner
+          in: query
+          description: A partner name string for loading the search preference
+          required: false
+      description: |2-
+        Get a specific preference content
+      responses:
+        "200":
+          description: The signed VC document in Json format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preference'
+        default:
+          description: Empty object
+    put:
+      parameters:
+        - name: partner
+          in: query
+          description: A partner name string for storing the search preference
+          required: false
+      description: |2-
+        Put the preference json content as the request body and store it referenced by `partner`
+      responses:
+        "200":
+definitions: {}
+responses: {}
+parameters: {}
