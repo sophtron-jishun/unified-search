@@ -1,11 +1,13 @@
 {
-  "searchProvider": "sophtron",
+  "defaultProvider": "sophtron",
 
   "providerMapping" : {
     "b2a957e5-7bf2-47c0-bd63-ce96736cdacd": { "name": "Chase Bank", "provider": "sophtron" },
-    "4b2eca34-a729-438f-844c-ba8ce51047f9": { "name": "Citibank", "provider": "sophtron" },
+    "4b2eca34-a729-438f-844c-ba8ce51047f9": { "name": "Citibank", "provider": "mx" },
     "e3d4c866-1c48-44c3-9cc5-5e9c7db43ef0": { "name": "Wells Fargo", "provider": "sophtron" }
   },
+
+  "hiddenBanks" : [],
 
   "defaultBanks" : [
     {
@@ -18,7 +20,8 @@
       "id": "b2a957e5-7bf2-47c0-bd63-ce96736cdacd",
       "name": "Chase Bank",
       "url": "https://www.chase.com/",
-      "logo_url": "https://sophtron.com/images/banklogos/chase.png"
+      "logo_url": "https://sophtron.com/images/banklogos/chase.png",
+      "provider": "mx"
     },
     {
       "id": "e3d4c866-1c48-44c3-9cc5-5e9c7db43ef0",

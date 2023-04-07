@@ -1,7 +1,7 @@
 deploymentGroup: pre
 image:
   repository: 156013518325.dkr.ecr.us-west-2.amazonaws.com/sophtron/svc-search
-  version:  "20230328ARM"
+  version:  "20230408ARM"
 
 app:
   name: sph-search
@@ -31,7 +31,6 @@ ingress:
 env: 
   Port: "8080"
   LogLevel: "Debug" #"Warning" #"Info" "Debug"
-  AutoSuggestEndpoint: 'https://sophtron-prod.com/autoSuggest'
   statsDHost: "statsd.sophtron-prod.com"
   AwsRegion: 'us-west-2'
   S3Bucket: 'sophtron-prod-data'

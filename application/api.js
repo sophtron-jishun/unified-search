@@ -1,8 +1,9 @@
 const {logger, statsd, http} = require('sph-base');
 const config = require('./config')
 const s3 = require('sph-s3');
-const {processCsv} = require('./utils')
+const utils = require('./utils')
 const axios = require('axios')
+const tools = require('./dataProcessor/tools')
 
 const s3Client = s3({
   region: config.AwsRegion,
@@ -12,20 +13,96 @@ const s3Client = s3({
 })
 const s3Prefix = `${config.Env}/search/`
 
-const mappingsCache = {}
+const db = {
+}
 
+async function loadData(){
+  logger.info(`loading data`);
+  const response = await axios.get(config.DataBaseUrl + 'main.csv', {
+    responseType: 'stream'
+  }).catch(err => {
+    if(err?.response?.status === 404){
+      return [];
+    }
+  });
+  const stream = response?.data;
+  if(!stream){
+    return [];
+  }
+  let arr = (await utils.processCsv(stream));
+  if(!arr){
+    return [];
+  }
+  logger.info(`loaded data: ${arr.length}`);
+
+  db.data = arr.map((row) => row[0]);
+  db.searchIndex = tools.buildIndex(arr);
+  let providers = arr[0].pop().replace('foreignKeys(', '').replace(')', '').split(';')
+  logger.info(`Building key index, providers: ${providers.join(';')}`);
+  db.keyIndex = arr.reduce((obj, row, index) => {
+    // console.log(`${index} of ${arr.length}`)
+    if(index === 0){
+      return obj;
+    }
+    // if(index % 100 == 0){
+    //   console.log(`${index} of ${arr.length}`)
+    // }
+    let item = {
+      id: row[0],
+      name: row[1].replace(config.CsvEscape, ','),
+      url: row[2],
+      logo_url: row[3],
+      fks: {}
+    }
+    let fks = row[4].split(';');
+    for(let i = 0; i < providers.length; i++){
+      item.fks[providers[i]] = fks[i]
+    }
+    // console.log(item)
+    obj[item.id] = item;
+    // console.log(obj)
+    return obj;
+  }, {})
+  logger.info(`Initial data loaded and indexed`);
+}
+loadData();
 async function searchInstitutions(name){
-  // TODO use own search
-  const ret = await http.wget(`${config.AutoSuggestEndpoint}?term=${encodeURIComponent(name)}`, {});
-  // console.log(ret);
+  if(!db.data){
+    await loadData();
+  }
+  let queries = decodeURIComponent(name || '').toLowerCase().split(' ').filter(s => s.length > 1);
+  let findings = queries.map(q => db.searchIndex[q] || []);
+  let matches = findings.length == 1 ? (findings[0] || []) : findings.reduce((arr, cur, index) => {
+    for(let rowNumber of cur){
+      if(arr.length > config.MaxSearchResults){
+        return arr;
+      }
+      if(arr.indexOf(rowNumber) > -1){
+        return arr
+      }
+      if(findings.every((numbers, i) => i === index || numbers.indexOf(rowNumber) > -1)){
+        arr.push(rowNumber)
+      }
+    }
+    return arr;
+  }, [])
   return {
-    institutions: (ret || []).slice(0, 9).map(ins => ({
-      id: ins.value,
-      logo_url: ins.img,
-      name: ins.label,
-      url: ins.url
-    }))
-  };
+    // queries,
+    // findings,
+    // matches,
+    institutions: matches.map(m => {
+      let id = db.data[m];
+      let entry = db.keyIndex[id];
+      return {
+        // index: m,
+        id,
+        name: entry.name,
+        url: entry.url,
+        logo_url: entry.logo_url,
+        providers: entry.fks
+      };
+    })
+  }
 }
 async function getPreference(partner, noDefault){
   if(partner) {
@@ -40,40 +117,6 @@ async function getPreference(partner, noDefault){
   }
   let defaultPref = await http.wget(config.DataBaseUrl + 'preferences/default.json');
   return defaultPref;
-}
-async function getMappings(key){
-  if(mappingsCache[key]){
-    return mappingsCache[key];
-  }
-  logger.info(`Loading mappings: ${key}`)
-  const response = await axios.get(config.DataBaseUrl + key, {
-    responseType: 'stream'
-  }).catch(err => {
-    if(err?.response?.status === 404){
-      return;
-    }
-  });
-  const stream = response?.data;
-  if(!stream){
-    return;
-  }
-  let arr = await processCsv(stream);
-  if(!arr){
-    return;
-  }
-  // row_id,institution_name,mxcode,institution_guid,sophtron_institution_id,display_url
-  arr.shift(1);
-  return mappingsCache[key] = arr.reduce((obj, item) => {
-    if(!obj[item[4]]){
-      obj[item[4]] = { //sophtron_id
-        name: item[1],
-        target_id: item[2], //mx_code
-        url: item[5],
-        provider: 'mx' //TODO, design a convension for mappings and use dynamic value here 
-      }
-    }
-    return obj
-  });
 }
 module.exports = [
   {
@@ -107,22 +150,30 @@ module.exports = [
     func: async function(req, res){
       let { id, partner } = req.query;
       let { to_provider} = req.params;
+      let item = db.keyIndex[id];
+      if(!item){
+        res.sendStatus(404);
+      }
       if(!to_provider || to_provider === 'auto'){
         let pref = await getPreference(partner);
-        to_provider = pref.providerMapping[id]?.provider;
+        to_provider = pref.providerMapping[id]?.provider || pref.defaultProvider;
       }
-      if(to_provider){
-        let map = await getMappings(`${to_provider}_sophtron.csv`);
-        let ret = map?.[id]
-        if(ret){
-          res.send(ret)
-          return;
+      if(to_provider && item.fks[to_provider]){
+        res.send({
+          target_id: item.fks[to_provider],
+          provider: to_provider
+        })
+      }else{
+        for(let p in item.fks){
+          if(item.fks[p]){
+            res.send({
+              target_id: item.fks[p],
+              provider: p
+            })
+            return;
+          }
         }
       }
-      res.send({
-        target_id: id,
-        provider: 'sophtron'
-      })
     }
   },
   {
