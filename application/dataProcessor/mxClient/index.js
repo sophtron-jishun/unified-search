@@ -17,24 +17,24 @@ const mxConfigProd = {
 }
 
 const mx = {
-  ...mxConfigProd,
   baseOptions: {
     headers: {
       Accept: 'application/vnd.mx.api.v1+json',
     },
   }
 };
-const apiClient = MxPlatformApiFactory(new Configuration(mx));
-async function batchLoadInstitutions(){
+async function batchLoadInstitutions(env){
+  const apiClient = MxPlatformApiFactory(new Configuration(env === 'prod' ? {...mxConfigProd, ...mx}: {...mxConfigInt, ...mx}));
   logger.info(`loading mx institutions`);
   // logger.info(mx);
-  const knownTotalPages = 141;
+  let totalPages = 141;
   const all = [];
   const promises = [];
-  for(let i = 1; i < knownTotalPages; i++){
+  for(let i = 1; i <= totalPages; i++){
     promises.push(
       apiClient.listInstitutions(undefined, i, 100).then(ret => {
         let {pagination, institutions} = ret.data
+        totalPages = pagination.total_pages;
         //logger.info(ret.data)
         logger.info(`Loaded page ${pagination.current_page}, per_page: ${pagination.processCsv}, total_entries: ${pagination.total_entries}, total_pages: ${pagination.total_pages}`)
         if(institutions.length){

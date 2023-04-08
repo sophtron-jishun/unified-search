@@ -11,7 +11,8 @@ const mainIndexSchema = [
 ]
 const providers = [
   'mx',
-  'sophtron'
+  'sophtron',
+  'mx_int'
 ]
 const sourceDataSchema = {
   id: 0,
@@ -28,7 +29,8 @@ const file_names = {
   input: {
     mx_sophtron: utils.resolveDataFileName('input/20230309_mx_institutions_sophtron_g374.csv'),
     sophtron: utils.resolveDataFileName('input/sophtron', '.csv', true),
-    mx: utils.resolveDataFileName('input/mx', '.csv', true)
+    mx: utils.resolveDataFileName('input/mx', '.csv', true),
+    mx_int: utils.resolveDataFileName('input/mx_int', '.csv', true),
   },
   output: {
     main: utils.resolveDataFileName('output/main', '.csv', true)
@@ -39,13 +41,14 @@ const db = {
   current: {
     mainIndex: {},
     foreignIndexes: {
-      mx: {},
-      sophtron: {}
     }
   },
   input: {
 
   }
+}
+for(let p of providers){
+  db.current.foreignIndexes[p] = {}
 }
 
 function logDb(db){
@@ -57,11 +60,12 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   for(let i = 1; i < source.length; i++){
     let s = source[i];
     let sourceId = s[sourceSchema['id']];
+    
     // find the mapping if exists
-    let mappedId = mapping.find(item => 
+    let mappedId = mapped_provider ? mapping.find(item => 
         item[mappingSchema[source_provider]] === sourceId
         || (name_match && item[mappingSchema['name']] === s[sourceSchema['name']])
-      )?.[mappingSchema[mapped_provider]];
+      )?.[mappingSchema[mapped_provider]] : null ;
     let entries = db.current.foreignIndexes[source_provider]?.[sourceId];
     let entry;
     if(mappedId){
@@ -72,18 +76,19 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
       // if there isn't mapped provider at all, it should be not recorded or only one entry recorded
       entry = entries?.[0];
     }
-    let newKey = !entry?.foreignKeys?.[mapped_provider]
+    let newKey = !entry?.foreignKeys?.[mapped_provider || 'dummy']
     if(!entry){
       // take the current provider used id as the universal Id, first come first serve
-      let uid = sourceId;
+      // if no other providers to map, make the universal id specific
+      let uid = mapped_provider ? sourceId: `${source_provider}_${sourceId}`;
       entry = db.current.mainIndex[uid] = {
         id: uid,
         foreignKeys: {
-          [source_provider]: uid
+          [source_provider]: sourceId
         }
       }
     }
-    if(entry.id === sourceId){
+    if(!entry.name || entry.id === sourceId){
       // entry may get updated, 
       entry.name = s[sourceSchema['name']];
       entry.url = s[sourceSchema['url']];
@@ -110,6 +115,7 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   db.input.mx_sophtron = await utils.processCsvFile(file_names.input.mx_sophtron);
   db.input.sophtron = await utils.processCsvFile(file_names.input.sophtron);
   db.input.mx = await utils.processCsvFile(file_names.input.mx);
+  db.input.mx_int = await utils.processCsvFile(file_names.input.mx_int);
   logger.info('Input:')
   logDb(db.input);
   let main = await utils.processCsvFile(file_names.output.main);
@@ -142,6 +148,7 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   }, {})
   logger.info('Output:')
   logDb(db.output);
+  processProvider(db.input.mx_int, [], 'mx_int', '', sourceDataSchema, {})
   processProvider(db.input.mx, db.input.mx_sophtron, 'mx', 'sophtron', sourceDataSchema, mx_sophtron_schema, true)
   processProvider(db.input.sophtron, db.input.mx_sophtron, 'sophtron', 'mx', sourceDataSchema,mx_sophtron_schema)
   const file_name = utils.resolveDataFileName('output/main', '.csv', false);
@@ -149,9 +156,13 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
     var fwriter = fs.createWriteStream(file_name, {
       flags: 'w' // a: append, w: write
     })
-    fwriter.write('uid,name,url,logo,foreignKeys(mx;sophtron)')
+    fwriter.write(`uid,name,url,logo,foreignKeys(${providers.join(';')})`)
     for(let key in db.current.mainIndex){
       let item = db.current.mainIndex[key];
-      fwriter.write(`\n${key},${item.name.replaceAll(',', config.csvEscape)},${item.url},${item.logo||''},${item.foreignKeys.mx||''};${item.foreignKeys.sophtron||''}`)
+      if(item.name){
+        fwriter.write(`\n${key},${item.name.replaceAll(',', config.csvEscape)},${item.url},${item.logo||''},${providers.map(p => `${item.foreignKeys[p] || ''}`).join(';')}`)
+      }else{
+        logger.error(`Invalid item`, item)
+      }
     }
 })()

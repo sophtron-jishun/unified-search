@@ -13,12 +13,19 @@ const s3Client = s3({
 })
 const s3Prefix = `${config.Env}/search/`
 
-const db = {
+let db = {
 }
 
 async function loadData(){
-  logger.info(`loading data`);
-  const response = await axios.get(config.DataBaseUrl + 'main.csv', {
+  let versions = await axios.get(`${config.DataBaseUrl}version.json`).then(res => res.data);
+  let version = versions[config.Env];
+  let ret = {version};
+  if(db.version === version){
+    logger.info(`Data version unchanged: ${version}`)
+    return
+  }
+  logger.info(`loading data, version: ${version}`);
+  const response = await axios.get(config.DataBaseUrl + `db/${version}.csv`, {
     responseType: 'stream'
   }).catch(err => {
     if(err?.response?.status === 404){
@@ -35,18 +42,14 @@ async function loadData(){
   }
   logger.info(`loaded data: ${arr.length}`);
 
-  db.data = arr.map((row) => row[0]);
-  db.searchIndex = tools.buildIndex(arr);
+  ret.data = arr.map((row) => row[0]);
+  ret.searchIndex = tools.buildIndex(arr);
   let providers = arr[0].pop().replace('foreignKeys(', '').replace(')', '').split(';')
   logger.info(`Building key index, providers: ${providers.join(';')}`);
-  db.keyIndex = arr.reduce((obj, row, index) => {
-    // console.log(`${index} of ${arr.length}`)
+  ret.keyIndex = arr.reduce((obj, row, index) => {
     if(index === 0){
       return obj;
     }
-    // if(index % 100 == 0){
-    //   console.log(`${index} of ${arr.length}`)
-    // }
     let item = {
       id: row[0],
       name: row[1].replace(config.CsvEscape, ','),
@@ -56,16 +59,24 @@ async function loadData(){
     }
     let fks = row[4].split(';');
     for(let i = 0; i < providers.length; i++){
-      item.fks[providers[i]] = fks[i]
+      if(fks[i]){
+        item.fks[providers[i]] = fks[i]
+      }
     }
-    // console.log(item)
+    // consider returning the only provider entry so resolving is not needed
+    // if(Object.keys(item.fks).length === 1){
+    //   item.provider = Object.keys()[0];
+    //   item.id = Object.values()[0];
+    // }
     obj[item.id] = item;
-    // console.log(obj)
     return obj;
   }, {})
   logger.info(`Initial data loaded and indexed`);
+  db = ret;
 }
 loadData();
+setInterval(loadData, config.DataLoadIntervalSeconds * 1000)
+
 async function searchInstitutions(name){
   if(!db.data){
     await loadData();

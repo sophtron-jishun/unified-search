@@ -9,6 +9,7 @@ module.exports = defineConfig({
   DataSuffix: '_20230406',
   CsvEscape: '^',
   MaxSearchResults: 20,
+  DataLoadIntervalSeconds: 30,
 
   DataBaseUrl: 'https://sophtron-prod-shared-data.s3.us-west-2.amazonaws.com/search/',
 
