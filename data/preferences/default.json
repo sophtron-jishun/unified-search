@@ -2,44 +2,42 @@
   "defaultProvider": "sophtron",
 
   "providerMapping" : {
-    "b2a957e5-7bf2-47c0-bd63-ce96736cdacd": { "name": "Chase Bank", "provider": "sophtron" },
-    "4b2eca34-a729-438f-844c-ba8ce51047f9": { "name": "Citibank", "provider": "mx" },
-    "e3d4c866-1c48-44c3-9cc5-5e9c7db43ef0": { "name": "Wells Fargo", "provider": "sophtron" }
+    "chase": { "name": "Chase Bank", "provider": "sophtron" },
+    "citibank": { "name": "Citibank", "provider": "mx" },
+    "wells_fargo": { "name": "Wells Fargo", "provider": "sophtron" }
   },
 
   "hiddenBanks" : [],
 
   "defaultBanks" : [
     {
-      "id": "4b2eca34-a729-438f-844c-ba8ce51047f9",
+      "id": "citibank",
       "name": "Citibank",
-      "url": "https://online.citi.com/US/login.do",
-      "logo_url": "https://sophtron.com/images/banklogos/citibank.png "
+      "url": "https://www.citi.com/",
+      "logo_url": "https://content.moneydesktop.com/storage/MD_Assets/Ipad%20Logos/100x100/INS-80feb7d4-f8ce-fa5e-cc71-bb22d7492fda_100x100.png"
     },
     {
-      "id": "b2a957e5-7bf2-47c0-bd63-ce96736cdacd",
+      "id": "chase",
       "name": "Chase Bank",
       "url": "https://www.chase.com/",
-      "logo_url": "https://sophtron.com/images/banklogos/chase.png",
-      "provider": "mx"
+      "logo_url": "https://content.moneydesktop.com/storage/MD_Assets/Ipad%20Logos/100x100/INS-78c7b591-6512-9c17-b092-1cddbd3c85ba_100x100.png"
     },
     {
-      "id": "e3d4c866-1c48-44c3-9cc5-5e9c7db43ef0",
+      "id": "wells_fargo",
       "name": "Wells Fargo",
-      "url": "https://connect.secure.wellsfargo.com/auth/login/present?origin=tpb",
-      "logo_url": "https://sophtron.com/images/banklogos/wells%20fargo.png"
+      "url": "https://www.wellsfargo.com",
+      "logo_url": "https://content.moneydesktop.com/storage/MD_Assets/Ipad%20Logos/100x100/INS-6073ad01-da9e-f6ba-dfdf-5f1500d8e867_100x100.png"
     },
     {
-      "id": "3e9fbc88-be07-4478-9a4c-9d3061d5d6d4",
+      "id": "bank_of_america",
       "name": "Bank of America",
-      "url": "https://connect.bnymellon.com/ConnectLogin/login/LoginPage.jsp",
-      "logo_url":
-        "https://logos-list.s3-us-west-2.amazonaws.com/bank_of_america_logo.png"
+      "url": "https://www.bankofamerica.com",
+      "logo_url": "https://content.moneydesktop.com/storage/MD_Assets/Ipad%20Logos/100x100/INS-93b80c01-e275-2587-a0df-6c0995e283ef_100x100.png"
     },
     {
       "id": "227d9de3-7c18-4781-97a0-ce2ecefb1b7a",
       "name": "Barclays",
-      "url": "https://www.securebanking.barclaysus.com/",
+      "url": "https://www.securebanking.barclaysus.com/login.do",
       "logo_url": "https://sophtron.com/images/banklogos/barclays.png"
     },
     {
@@ -49,10 +47,10 @@
       "logo_url": "https://sophtron.com/images/banklogos/bbt.png"
     },
     {
-      "id": "0d8a29dd-4c28-4364-a493-b508f0a84758",
+      "id": "capital_one",
       "name": "Capital One",
-      "url": "https://www.capitalone.com/",
-      "logo_url": "https://sophtron.com/images/banklogos/capital%20one.png"
+      "url": "https://www.capitalone.com",
+      "logo_url": "https://content.moneydesktop.com/storage/MD_Assets/Ipad%20Logos/100x100/INS-acc3b72a-1165-9642-b41d-1e15f62d75fa_100x100.png"
     },
     {
       "id": "3d7671e4-36be-4266-971e-b50d33001382",
@@ -61,23 +59,22 @@
       "logo_url": "https://sophtron.com/images/banklogos/charles%20schwab.png"
     },
     {
-      "id": "d06b4cb4-d11f-47cf-92bd-6d0fe52760b1",
+      "id": "usaa-2",
       "name": "USAA",
       "url": "https://www.usaa.com/inet/ent_logon/Logon",
-      "logo_url": "https://sophtron.com/images/banklogos/usaa.png"
+      "logo_url": "https://content.moneydesktop.com/storage/MD_Assets/Ipad%20Logos/100x100/INS-d4dde375-895e-44b3-5380-fabdc4e10949_100x100.png"
     },
     {
-      "id": "71ec5788-adf0-43a4-b1dd-8d5958a0d13c",
-      "name": "Fifth Third Bank ",
-      "url": "http://www.53.com/content/fifth-third/en/login.html",
-      "logo_url":
-        "https://logos-list.s3-us-west-2.amazonaws.com/fifth_third_bank_logo.png"
+      "id": "68550",
+      "name": "Fifth Third Bank",
+      "url": "http://www.53.com/",
+      "logo_url": "https://content.moneydesktop.com/storage/MD_Assets/Ipad%20Logos/100x100/INS-3d76fbd8-bc2c-ef27-0f8a-d4d2493ddfe8_100x100.png"
     },
     {
-      "id": "d03878fe-5b40-4b4d-95fc-c48d92105888",
-      "name": "GoldMan Sachs",
-      "url": "https://www.goldman.com/",
-      "logo_url": "https://sophtron.com/images/banklogos/goldman%20sachs.png"
+      "id": "0b82d0db-b63d-4827-8f5c-3b115af01aa3",
+      "name": "Goldman Sachs",
+      "url": "https://www.goldman.com/auth/login",
+      "logo_url": "https://content.moneydesktop.com/storage/MD_Assets/Ipad%20Logos/100x100/default_100x100.png"
     },
     {
       "id": "c155dab2-9133-4df3-a28e-b862af43bb38",
@@ -86,16 +83,16 @@
       "logo_url": "https://sophtron.com/images/banklogos/hsbc%20bank.png"
     },
     {
-      "id": "abd4059c-adf1-4f16-b493-37767f6cf233",
+      "id": "69397",
       "name": "Morgan Stanley",
-      "url": "https://www.morganstanleyclientserv.com/",
-      "logo_url": "https://sophtron.com/images/banklogos/morgan%20stanley.png"
+      "url": "https://www.morganstanleyclientserv.com",
+      "logo_url": "https://content.moneydesktop.com/storage/MD_Assets/Ipad%20Logos/100x100/INS-d80822f4-375e-90fc-fb69-038cf75a7c91_100x100.png"
     },
     {
-      "id": "13793b9f-2ebf-4f31-815e-7dfe38e906c4",
+      "id": "pnc_bank",
       "name": "PNC Bank",
-      "url": "https://www.pnc.com/en/personal-banking/banking/online-and-mobile-banking.html",
-      "logo_url": "https://logos-list.s3-us-west-2.amazonaws.com/pnc_bank_logo.png"
+      "url": "http://www.pnc.com/",
+      "logo_url": "https://content.moneydesktop.com/storage/MD_Assets/Ipad%20Logos/100x100/INS-0be9a5aa-d127-c11e-145f-dc5618d97d6c_100x100.png"
     },
     {
       "id": "86e1f8a0-5963-4125-9999-ccbe44d5940e",
@@ -120,19 +117,6 @@
       "name": "US Bank",
       "url": "https://www.usbank.com/index.html",
       "logo_url": "https://logos-list.s3-us-west-2.amazonaws.com/us_bank_logo.png"
-    },
-    {
-      "id": "Sophtron Bank",
-      "name": "Sophtron Bank",
-      "url": "http://sophtron.com",
-      "logo_url": "https://sophtron.com/Images/logo.png"
-    },
-    {
-      "id": "mxbank",
-      "name": "MX Bank",
-      "url": "http://mx.com",
-      "logo_url": "https://assets.mx.com/images/home2022/mx-logo.svg",
-      "provider": "mx"
     }
   ]
 }

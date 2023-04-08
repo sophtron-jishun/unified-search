@@ -8,7 +8,7 @@ function contentToWords(content)
     || content.startsWith('http')){
     return []
   }
-  let words = content.split(' ')
+  let words = content.split(' ').filter(w => w.trim()).slice(0, 10)
   //return words.map(w => w.trim().replace(/[^a-zA-Z0-9\&\'\(\)]/g, ''));
   return words.map(w => w.trim().replace(/[^a-zA-Z0-9\&\']/g, ''));
 }
@@ -16,13 +16,17 @@ function contentToWords(content)
 function extractTerms(content)
 {
   let words = contentToWords(content.toLowerCase());
-  let terms =[]
-  for (let word of words)
-  {
+  let terms = {};
+  for (let i = 0; i < words.length; i++){
+    let word = words[i];
     for(let size = MinTermSize; size <= word.length; size++){
       for (let pos = 0; pos + size <= word.length; pos++)
       {
-        terms.push(word.substring(pos, pos + size));
+        let t = word.substring(pos, pos + size);
+        terms[t] = { 
+          order : (terms[t]?.order < i ? terms[t].order : i),
+          wordLength : word.length,
+        };
       }
     }
   }
@@ -35,14 +39,23 @@ function buildIndex(mainInput){
   for(let i = 1; i< mainInput.length; i++){
     let name = mainInput[i][1];
     let terms = extractTerms(name);
-    for(let t of terms){
+    for(let t in terms){
       if(!mainIndex[t]){
         mainIndex[t] = []
       }
-      mainIndex[t].push(i);
+      mainIndex[t].push({
+        order: terms[t].order,
+        row: i,
+        wordLength: terms[t].wordLength,
+        totalLength: name.length
+      });
     }
   }
-  logger.info(`Built search index`)
+  logger.info(`Built search index, sorting`)
+  for(let t in mainIndex){
+    mainIndex[t] = mainIndex[t].sort((a,b) => a.totalLength - b.totalLength || a.wordLength - b.wordLength || a.order - b.order);
+  }
+  logger.info(`Built search index, done sorting`)
   return mainIndex;
 }
 module.exports = {
@@ -52,7 +65,7 @@ module.exports = {
 // const utils = require('../../utils');
 // const fs = require('fs')
 // const mainInput = utils.resolveDataFileName('output/main', '.csv', false);
-// const indexOutput = utils.resolveDataFileName('output/index', '.csv', false);
+// const indexOutput = utils.resolveDataFileName('output/index', '.txt', false);
 // let ret = (async function entry(){
 //   const main = await utils.processCsvFile(mainInput);
 //   let mainIndex = buildIndex(main)
@@ -64,4 +77,3 @@ module.exports = {
 //     fwriter.write(`\n${key}:${mainIndex[key].join(',')}`)
 //   }
 // })()
-

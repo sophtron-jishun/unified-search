@@ -81,38 +81,42 @@ async function searchInstitutions(name){
   if(!db.data){
     await loadData();
   }
-  let queries = decodeURIComponent(name || '').toLowerCase().split(' ').filter(s => s.length > 1);
-  let findings = queries.map(q => db.searchIndex[q] || []);
-  let matches = findings.length == 1 ? (findings[0] || []) : findings.reduce((arr, cur, index) => {
-    for(let rowNumber of cur){
+  let queries = decodeURIComponent(name || '')
+    .toLowerCase().split(' ')
+    .filter(s => s.trim().length > 1)
+    .map(s => s.trim());
+  let findings = queries.map((q, i) => (db.searchIndex[q] || []).filter(t => t.order >= i)).filter(a => a.length > 0);
+  let matches = findings.length == 1 ? (findings[0] || []).map(item => item.row) : findings.reduce((arr, cur, index) => {
+    for(let item of cur){
       if(arr.length > config.MaxSearchResults){
         return arr;
       }
-      if(arr.indexOf(rowNumber) > -1){
+      if(arr.indexOf(item.row) > -1){
         return arr
       }
-      if(findings.every((numbers, i) => i === index || numbers.indexOf(rowNumber) > -1)){
-        arr.push(rowNumber)
+      if(findings.every((numbers, i) => i === index || numbers.some(t => t.order > index && t.row === item.row ))){
+        arr.push(item.row)
       }
     }
     return arr;
   }, [])
   return {
     // queries,
-    // findings,
+    // findings: `${findings.length}, ${findings.map(a => a.length).join(',')}`,
     // matches,
     institutions: matches.map(m => {
+      //let rowNumber = m.substring(1);
       let id = db.data[m];
       let entry = db.keyIndex[id];
       return {
         // index: m,
-        id,
         name: entry.name,
+        id,
         url: entry.url,
         logo_url: entry.logo_url,
         providers: entry.fks
       };
-    })
+    })//.sort((a,b) => a.name.length - b.name.length)
   }
 }
 async function getPreference(partner, noDefault){
