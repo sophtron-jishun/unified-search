@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 profile=soph_prod_admin
-version="20230408_2"
+version="20230409"
 versionJson=$(cat <<-END
   {
     "prod": "$version",

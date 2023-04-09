@@ -55,7 +55,7 @@ function logDb(db){
   //logger.info(`mapping: ${db.mapping.length}, sophtron: ${db.sophtron.length}, mx: ${db.mx.length}`)
 }
 
-function processProvider(source, mapping, source_provider, mapped_provider, sourceSchema, mappingSchema, name_match){
+function processProvider(source, mapping, source_provider, mapped_provider, sourceSchema, mappingSchema){
   logger.info(`Processing provider data: ${source_provider}, ${source.length}`)
   for(let i = 1; i < source.length; i++){
     let s = source[i];
@@ -63,9 +63,7 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
     
     // find the mapping if exists
     let mappedId = mapped_provider ? mapping.find(item => 
-        item[mappingSchema[source_provider]] === sourceId
-        || (name_match && item[mappingSchema['name']] === s[sourceSchema['name']])
-      )?.[mappingSchema[mapped_provider]] : null ;
+        item[mappingSchema[source_provider]] === sourceId)?.[mappingSchema[mapped_provider]] : null ;
     let entries = db.current.foreignIndexes[source_provider]?.[sourceId];
     let entry;
     if(mappedId){
@@ -116,7 +114,14 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   db.input.sophtron = await utils.processCsvFile(file_names.input.sophtron);
   db.input.mx = await utils.processCsvFile(file_names.input.mx);
   db.input.mx_int = await utils.processCsvFile(file_names.input.mx_int);
-  logger.info('Input:')
+  logger.info('Loaded input. pre-processing mx data')
+  for(let map of db.input.mx_sophtron){
+    // mx mapping used internal institution guid that's not accessible from public api, update the mapping first
+    let public = db.input.mx.find(item => item[sourceDataSchema.name] === map[mx_sophtron_schema.name])
+    if(public){
+      map[mx_sophtron_schema.mx] = public[sourceDataSchema.id]
+    }
+  }
   logDb(db.input);
   let main = await utils.processCsvFile(file_names.output.main);
   db.current.mainIndex = main.reduce((sum, item) => {
