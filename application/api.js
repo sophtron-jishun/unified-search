@@ -94,7 +94,7 @@ async function searchInstitutions(name){
       if(arr.indexOf(item.row) > -1){
         return arr
       }
-      if(findings.every((numbers, i) => i === index || numbers.some(t => t.order > index && t.row === item.row ))){
+      if(findings.every((numbers, i) => i === index || numbers.some(t => t.row === item.row ))){
         arr.push(item.row)
       }
     }
