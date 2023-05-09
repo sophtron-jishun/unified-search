@@ -4,8 +4,9 @@
   "providerMapping" : {
     "chase": { "name": "Chase Bank", "provider": "sophtron" },
     "citibank": { "name": "Citibank", "provider": "sophtron" },
-    "wells_fargo": { "name": "Wells Fargo", "provider": "sophtron" }
-  },
+    "wells_fargo": { "name": "Wells Fargo", "provider": "sophtron" },
+    "td_bank": { "name": "TD Bank (US)", "provider": "sophtron" }
+},
 
   "hiddenBanks" : [],
 

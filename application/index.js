@@ -1,5 +1,6 @@
 const config = require("./config.js");
 const express = require("express");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const api = require('./api.js');
 const {logger, statsd} = require('sph-base');
@@ -19,6 +20,7 @@ app.use(function (err, req, res, next) {
     res.sendStatus(500)
   }
 });
+app.use(cors())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 

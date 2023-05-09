@@ -1,7 +1,7 @@
 deploymentGroup: pre
 image:
   repository: 156013518325.dkr.ecr.us-west-2.amazonaws.com/sophtron/svc-search
-  version:  "20230410ARM"
+  version:  "20230420ARM"
 
 app:
   name: sph-search
@@ -12,13 +12,14 @@ app:
 service:
   port: 8080
   minReplicas: 1
+  maxReplicas: 2
   healthcheck:
     port: 8080
   
 resources:
   requests:
     cpu: 200m
-    memory: 256Mi
+    memory: 512Mi
 
 ingress:
   zone: "sophtron-prod"
