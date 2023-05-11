@@ -4,7 +4,7 @@ module.exports = defineConfig({
   LogLevel: 'debug',
   Port: '8081',
   Env: 'dev', //mocked
-  Component: 'sph-vc',
+  Component: 'sph-search',
   Version: '',
   DataSuffix: '_20230406',
   CsvEscape: '^',
