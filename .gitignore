@@ -1,5 +1,5 @@
 raw_data/
-
+pnpm-lock.yaml
 # Logs
 logs
 *.log

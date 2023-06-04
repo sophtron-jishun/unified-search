@@ -1,6 +1,7 @@
 const {logger, statsd, http} = require('sph-base');
 const config = require('./config')
 const s3 = require('sph-s3');
+const cache = require('sph-redis');
 const utils = require('./utils')
 const axios = require('axios')
 const tools = require('./dataProcessor/tools')
@@ -11,9 +12,44 @@ const s3Client = s3({
   accessKeyId: config.DataBucketAccessKeyId,
   bucket: config.S3Bucket
 })
+
 const s3Prefix = `${config.Env}/search/`
 
 let db = {
+}
+let defaultPref;
+
+function weightByPerformance(metrics, pref){
+  let { weights_conf = defaultPref.weights } = pref; 
+  let weights = metrics.providers;
+  for( let [provider, metric] of Object.entries(metrics.providers)){
+    weights[provider].weight = 0;
+    let value = metric.success_rate[weights_conf.success_rate.use_field];
+    for( let conf of weights_conf.success_rate.buckets){
+      if(conf.from <= value && conf.to > value){
+        weights[provider].weight += conf.weight;
+      }
+    }
+    value = metric.time_cost[weights_conf.time_cost.use_field];
+    for( let conf of weights_conf.time_cost.buckets){
+      if(conf.from <= value && conf.to > value){
+        weights[provider].weight += conf.weight;
+      }
+    }
+  }
+  let selected_provider = 'sophtron'
+  let selected_weight = 0;
+  for(let [provider, value] of Object.entries(weights)){
+    if(selected_weight < value.weight){
+      selected_weight = value.weight;
+      selected_provider = provider
+    }
+  }
+  return {
+    provider: selected_provider,
+    weight: selected_weight,
+    weights,
+  };
 }
 
 async function loadData(){
@@ -130,8 +166,7 @@ async function getPreference(partner, noDefault){
       return {}
     }
   }
-  let defaultPref = await http.wget(config.DataBaseUrl + 'preferences/default.json');
-  return defaultPref;
+  return defaultPref || (defaultPref = await http.wget(config.DataBaseUrl + 'preferences/default.json'));
 }
 module.exports = [
   {
@@ -163,27 +198,47 @@ module.exports = [
     method: 'get',
     params: ['to_provider?'],
     func: async function(req, res){
-      let { id, partner } = req.query;
+      let { id, partner, cache : useCache } = req.query;
       let { to_provider} = req.params;
       let item = db.keyIndex[id];
+      let weights;
+      let cached = useCache !== 'false';
       if(!item){
         res.sendStatus(404);
       }
       if(!to_provider || to_provider === 'auto'){
         let pref = await getPreference(partner);
-        to_provider = pref.providerMapping[id]?.provider || pref.defaultProvider;
+        if(!to_provider){
+          to_provider = pref.providerMapping[id]?.provider || pref.defaultProvider;
+        }else{
+          let name = item.name.toLowerCase().replace(/[ \.,()]/g, '_').replace(/_+/g, '_');
+          let getFn = () => axios.get(`${config.SophtronAnalyticsServiceEndpoint}${name}/metrics/job/dummystart/dummyend`).then(res => res.data)
+          let key = `${config.Component}/metrics/${name}`
+          let metrics = await (cached ? cache.getOrSet(key, getFn) : getFn())
+          if(!cached){
+            await cache.set(key, metrics)
+          }
+          let ret = weightByPerformance(metrics, pref)
+          to_provider = ret.provider
+          weights = ret.weights
+        }
       }
+      
       if(to_provider && item.fks[to_provider]){
         res.send({
           target_id: item.fks[to_provider],
-          provider: to_provider
+          provider: to_provider,
+          weights,
+          cached
         })
       }else{
         for(let p in item.fks){
           if(item.fks[p]){
             res.send({
               target_id: item.fks[p],
-              provider: p
+              provider: p,
+              weights,
+              cached
             })
             return;
           }

@@ -7,6 +7,64 @@
     "wells_fargo": { "name": "Wells Fargo", "provider": "sophtron" }
   },
 
+  "weights_conf": {
+    "success_rate": {
+      "use_field": "avg",
+      "buckets": [
+        {
+          "from": 0,
+          "to": 30,
+          "weight": 10
+        },
+        {
+          "from": 30,
+          "to": 60,
+          "weight": 20
+        },
+        {
+          "from": 60,
+          "to": 90,
+          "weight": 35
+        },
+        {
+          "from": 90,
+          "to": 101,
+          "weight": 50
+        }
+      ]
+    },
+    "time_cost": {
+      "use_field": "avg",
+      "buckets":[
+        {
+          "from": 0,
+          "to": 30,
+          "weight": 50
+        },
+        {
+          "from": 30,
+          "to": 50,
+          "weight": 40
+        },
+        {
+          "from": 50,
+          "to": 60,
+          "weight": 30
+        },
+        {
+          "from": 60,
+          "to": 70,
+          "weight": 20
+        },
+        {
+          "from": 70,
+          "to": 90,
+          "weight": 10
+        }
+      ]
+    }
+  },
+  
   "hiddenBanks" : [],
 
   "defaultBanks" : [
