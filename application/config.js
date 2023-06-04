@@ -3,14 +3,14 @@ const {defineConfig} = require('sph-base');
 module.exports = defineConfig({
   LogLevel: 'debug',
   Port: '8082',
-  Env: 'dev', //mocked
+  Env: 'pre', //mocked
   Component: 'sph-search',
   Version: '',
   DataSuffix: '_20230406',
   CsvEscape: '^',
   MaxSearchResults: 20,
   DataLoadIntervalSeconds: 30,
-  RedisServer: 'redis://redis.sph-eks.svc.cluster.local:6379',
+  RedisServer: 'redis://localhost:6379',
   RedisCacheTimeSeconds: 600,
   SophtronAnalyticsServiceEndpoint: 'http://localhost:8081/api/',
 

@@ -15,7 +15,7 @@
     "readline": "^1.3.0",
     "sph-base": "^1.0.26",
     "sph-express-basic": "^1.0.6",
-    "sph-redis": "^1.0.4",
+    "sph-redis": "^1.0.5",
     "sph-s3": "^1.0.2"
   }
 }

@@ -20,7 +20,7 @@ let db = {
 let defaultPref;
 
 function weightByPerformance(metrics, pref){
-  let { weights_conf = defaultPref.weights } = pref; 
+  let { weights_conf = defaultPref.weights } = (pref || {} ); 
   let weights = metrics.providers;
   for( let [provider, metric] of Object.entries(metrics.providers)){
     weights[provider].weight = 0;
@@ -159,7 +159,7 @@ async function getPreference(partner, noDefault){
   if(partner) {
     logger.trace(`Getting preferences for partner: ${partner}`)
     let ret = await s3Client.GetObject(`${s3Prefix}preferences/${partner}/default.json`, true);
-    logger.trace(`Preferences for partner: ${partner}:`, ret)
+    logger.trace(`Preferences for partner: ${partner}:`)
     if(ret){
       return ret
     }else if(noDefault){
@@ -212,7 +212,16 @@ module.exports = [
           to_provider = pref.providerMapping[id]?.provider || pref.defaultProvider;
         }else{
           let name = item.name.toLowerCase().replace(/[ \.,()]/g, '_').replace(/_+/g, '_');
-          let getFn = () => axios.get(`${config.SophtronAnalyticsServiceEndpoint}${name}/metrics/job/dummystart/dummyend`).then(res => res.data)
+          let getFn = () => {
+            const url = `${config.SophtronAnalyticsServiceEndpoint}${name}/metrics/job/dummystart/dummyend`;
+            logger.trace(`Getting analytics data from ${url}`)
+            return axios.get(url).then(res => {
+              logger.debug(`Received analytics data from`, res.data)
+              return res.data
+            }).catch(err => {
+              logger.error(`Error getting analytics data from ${url}`, err)
+            })
+          }
           let key = `${config.Component}/metrics/${name}`
           let metrics = await (cached ? cache.getOrSet(key, getFn) : getFn())
           if(!cached){
