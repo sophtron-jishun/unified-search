@@ -1,12 +1,12 @@
 deploymentGroup: pre
 image:
   repository: 156013518325.dkr.ecr.us-west-2.amazonaws.com/sophtron/svc-search
-  version:  "20230603ARM0"
+  version:  "20230603ARM1"
 
 app:
   name: sph-search
   fullName: sophtron-search
-  requireAuth: false
+  requireAuth: true
   containerPort: 8080
 
 service:
@@ -26,6 +26,10 @@ ingress:
   internalSubdomain: "search-int."
   public: true
   paths:
+    - path: /api/institution
+      type: Prefix
+      public: true
+      subdomain: "search." 
     - path: /
       type: Prefix
       subdomain: "search." #must include trailing period "." if not empty

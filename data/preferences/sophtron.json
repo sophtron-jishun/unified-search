@@ -13,6 +13,7 @@
   "weights_conf": {
     "success_rate": {
       "use_field": "avg",
+      "ration": 0.4,
       "buckets": [
         {
           "from": 0,
@@ -38,6 +39,7 @@
     },
     "time_cost": {
       "use_field": "avg",
+      "ration": 0.6,
       "buckets":[
         {
           "from": 0,

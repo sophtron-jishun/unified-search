@@ -20,20 +20,20 @@ let db = {
 let defaultPref;
 
 function weightByPerformance(metrics, pref){
-  let { weights_conf = defaultPref.weights } = (pref || {} ); 
+  let { weights_conf = defaultPref.weights_conf } = (pref || {} ); 
   let weights = metrics.providers;
   for( let [provider, metric] of Object.entries(metrics.providers)){
     weights[provider].weight = 0;
     let value = metric.success_rate[weights_conf.success_rate.use_field];
     for( let conf of weights_conf.success_rate.buckets){
       if(conf.from <= value && conf.to > value){
-        weights[provider].weight += conf.weight;
+        weights[provider].weight += (conf.weight * weights_conf.success_rate.ratio);
       }
     }
     value = metric.time_cost[weights_conf.time_cost.use_field];
     for( let conf of weights_conf.time_cost.buckets){
       if(conf.from <= value && conf.to > value){
-        weights[provider].weight += conf.weight;
+        weights[provider].weight += (conf.weight * weights_conf.time_cost.ratio);
       }
     }
   }
