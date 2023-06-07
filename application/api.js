@@ -5,6 +5,7 @@ const cache = require('sph-redis');
 const utils = require('./utils')
 const axios = require('axios')
 const tools = require('./dataProcessor/tools')
+const url = require('url');
 
 const s3Client = s3({
   region: config.AwsRegion,
@@ -27,13 +28,13 @@ function weightByPerformance(metrics, pref){
     let value = metric.success_rate[weights_conf.success_rate.use_field];
     for( let conf of weights_conf.success_rate.buckets){
       if(conf.from <= value && conf.to > value){
-        weights[provider].weight += (conf.weight * weights_conf.success_rate.ratio);
+        weights[provider].weight += (conf.weight * (weights_conf.success_rate.ratio || 0.5));
       }
     }
     value = metric.time_cost[weights_conf.time_cost.use_field];
     for( let conf of weights_conf.time_cost.buckets){
       if(conf.from <= value && conf.to > value){
-        weights[provider].weight += (conf.weight * weights_conf.time_cost.ratio);
+        weights[provider].weight += (conf.weight * (weights_conf.time_cost.ratio || 0.5));
       }
     }
   }
@@ -136,11 +137,30 @@ async function searchInstitutions(name){
     }
     return arr;
   }, [])
+  let urlIndex = {};
+  let domainIndex = {};
+  let nameIndex = {};
   return {
     // queries,
     // findings: `${findings.length}, ${findings.map(a => a.length).join(',')}`,
     // matches,
-    institutions: matches.map(m => {
+    institutions: matches.filter(m => {
+      let id = db.data[m];
+      let entry = db.keyIndex[id];
+      if(!urlIndex[m.url]){
+        let host = url.parse(entry.url)?.hostname
+        if(entry.logo_url){
+          domainIndex[host] = true;
+          nameIndex[entry.name.toLowerCase()] = true;
+        }else if(domainIndex[host]){
+          return false;
+        }else if(Object.keys(nameIndex).some(i => entry.name.toLowerCase().startsWith(i))){
+          return false;
+        }
+        return urlIndex[entry.url] = true
+      }
+      return false
+    }).map(m => {
       //let rowNumber = m.substring(1);
       let id = db.data[m];
       let entry = db.keyIndex[id];
@@ -237,8 +257,10 @@ module.exports = [
         res.send({
           target_id: item.fks[to_provider],
           provider: to_provider,
+          logo_url: item.logo_url,
+          url: item.url,
           weights,
-          cached
+          cached: weights ? cached : undefined
         })
       }else{
         for(let p in item.fks){
@@ -246,8 +268,10 @@ module.exports = [
             res.send({
               target_id: item.fks[p],
               provider: p,
+              logo_url: item.logo_url,
+              url: item.url,
               weights,
-              cached
+              cached: weights ? cached : undefined
             })
             return;
           }

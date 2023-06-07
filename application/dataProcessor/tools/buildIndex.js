@@ -15,7 +15,7 @@ function contentToWords(content)
 
 function extractTerms(content)
 {
-  let words = contentToWords(content.toLowerCase());
+  let words = contentToWords(content);
   let terms = {};
   for (let i = 0; i < words.length; i++){
     let word = words[i];
@@ -33,12 +33,48 @@ function extractTerms(content)
   return terms;
 }
 
+let betterNameSuffixes = [
+  'bank',
+  ' bank',
+  ' credit union',
+  ' cu',
+  ' fcu',
+  ' investments',
+]
+
 function buildIndex(mainInput){
   const mainIndex = {};
+  const nameIndex = mainInput.reduce((obj, cur) => {
+    obj[cur[1].toLowerCase()] = [...(obj[cur[1].toLowerCase()] || []) ,cur];
+    return obj
+  }, {})
   logger.info(`Building index, Loaded main input: ${mainInput.length}`)
   for(let i = 1; i< mainInput.length; i++){
-    let name = mainInput[i][1];
+    let entry = mainInput[i];
+    let name = entry[1].toLowerCase();
+    let skip = false;
+    if(!entry[3]) { // no logo
+      if(betterNameSuffixes.some(bns => nameIndex[name + bns]?.some(item => !!item?.[3]))){
+        skip = true;
+        continue;
+      }
+    }
+    if(nameIndex[name].length > 1){
+      for(let dup of nameIndex[name]){
+        if(dup[0] !== entry[0]){
+          let arr =  dup[4].split(';');
+          if(entry[4].split(';').every((provider, index) => !provider || arr[index])){
+            skip = true;
+            break;
+          }
+        }
+      }
+    }
+    if(skip){
+      continue;
+    }
     let terms = extractTerms(name);
+
     for(let t in terms){
       if(!mainIndex[t]){
         mainIndex[t] = []

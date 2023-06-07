@@ -1,7 +1,7 @@
 deploymentGroup: pre
 image:
   repository: 156013518325.dkr.ecr.us-west-2.amazonaws.com/sophtron/svc-search
-  version:  "20230603ARM1"
+  version:  "20230607ARM2"
 
 app:
   name: sph-search

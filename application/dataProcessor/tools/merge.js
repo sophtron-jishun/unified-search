@@ -90,8 +90,10 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
       // entry may get updated, 
       entry.name = s[sourceSchema['name']];
       entry.url = s[sourceSchema['url']];
-      entry.logo = s[sourceSchema['logo']];
+      entry.logo = s[sourceSchema['logo']] || entry.logo;
     }
+    entry.logo = entry.logo || s[sourceSchema['logo']];
+
     // ensure foreign index so that this can be found later 
     if(newKey){
       if(!db.current.foreignIndexes[source_provider]?.[sourceId]){
@@ -154,7 +156,7 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   logger.info('Output:')
   logDb(db.output);
   processProvider(db.input.mx_int, [], 'mx_int', '', sourceDataSchema, {})
-  processProvider(db.input.mx, db.input.mx_sophtron, 'mx', 'sophtron', sourceDataSchema, mx_sophtron_schema, true)
+  processProvider(db.input.mx, db.input.mx_sophtron, 'mx', 'sophtron', sourceDataSchema, mx_sophtron_schema)
   processProvider(db.input.sophtron, db.input.mx_sophtron, 'sophtron', 'mx', sourceDataSchema,mx_sophtron_schema)
   const file_name = utils.resolveDataFileName('output/main', '.csv', false);
     logger.info('Saving to file: ' + file_name)

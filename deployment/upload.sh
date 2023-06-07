@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 profile=soph_prod_admin
-version="20230506"
+version="20230607_1"
 versionJson=$(cat <<-END
   {
     "prod": "$version",
@@ -12,7 +12,7 @@ END
 echo $versionJson
 echo $versionJson | aws s3 cp --content-type application/json - s3://sophtron-prod-shared-data/search/version.json --profile $profile
 
-aws s3 cp ${BASH_SOURCE%/*}/preferences s3://sophtron-prod-shared-data/search/preferences --recursive --profile soph_prod_admin
+aws s3 cp ${BASH_SOURCE%/*}/../data/preferences s3://sophtron-prod-shared-data/search/preferences --recursive --profile soph_prod_admin
 
 case $1 in 
   "--data")
