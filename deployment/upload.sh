@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 profile=soph_prod_admin
-version="20230607_1"
+version="20230629_0"
 versionJson=$(cat <<-END
   {
     "prod": "$version",
@@ -12,15 +12,16 @@ END
 echo $versionJson
 echo $versionJson | aws s3 cp --content-type application/json - s3://sophtron-prod-shared-data/search/version.json --profile $profile
 
-aws s3 cp ${BASH_SOURCE%/*}/../data/preferences s3://sophtron-prod-shared-data/search/preferences --recursive --profile soph_prod_admin
 
 case $1 in 
   "--data")
     aws s3 cp ${BASH_SOURCE%/*}/../application/dataProcessor/raw_data/output/main.csv "s3://sophtron-prod-shared-data/search/db/$version.csv" --profile $profile
   ;;
+  "--pref")
+    aws s3 cp ${BASH_SOURCE%/*}/../data/preferences s3://sophtron-prod-shared-data/search/preferences --recursive --profile soph_prod_admin
+  ;;
 
   *)
-    echo "Not uploading index data, use --data switch to do it, and carefully"
-    
+    echo "Not uploading anything, use --data or --pref switch to choose targets, and carefully"
     ;;
 esac

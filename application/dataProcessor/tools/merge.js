@@ -9,11 +9,13 @@ const mainIndexSchema = [
   'logo',
   'foreignKeys'
 ]
-const providers = [
-  'mx',
-  'sophtron',
-  'mx_int'
-]
+const providers = {
+  sophtron: utils.resolveDataFileName('input/sophtron', '.csv', true),
+  mx: utils.resolveDataFileName('input/mx', '.csv', true),
+  akoya: utils.resolveDataFileName('input/akoya', '.csv', true),
+  mx_int: utils.resolveDataFileName('input/mx_int', '.csv', true),
+  akoya_sandbox: utils.resolveDataFileName('input/akoya_sandbox', '.csv', true),
+}
 const sourceDataSchema = {
   id: 0,
   name: 1,
@@ -25,12 +27,16 @@ const mx_sophtron_schema = {
   mx: 2,
   sophtron: 3,
 }
+const akoya_sophtron_schema = {
+  name: 0,
+  akoya: 1,
+  sophtron: 2,
+}
 const file_names = {
   input: {
     mx_sophtron: utils.resolveDataFileName('input/20230309_mx_institutions_sophtron_g374.csv'),
-    sophtron: utils.resolveDataFileName('input/sophtron', '.csv', true),
-    mx: utils.resolveDataFileName('input/mx', '.csv', true),
-    mx_int: utils.resolveDataFileName('input/mx_int', '.csv', true),
+    akoya_sophtron: utils.resolveDataFileName('input/akoya_sophtron.csv'),
+    ...providers
   },
   output: {
     main: utils.resolveDataFileName('output/main', '.csv', true)
@@ -47,7 +53,7 @@ const db = {
 
   }
 }
-for(let p of providers){
+for(let p in providers){
   db.current.foreignIndexes[p] = {}
 }
 
@@ -56,7 +62,8 @@ function logDb(db){
 }
 
 function processProvider(source, mapping, source_provider, mapped_provider, sourceSchema, mappingSchema){
-  logger.info(`Processing provider data: ${source_provider}, ${source.length}`)
+  let start = new Date();
+  logger.info(`Processing provider data: ${source_provider}, ${source.length}, to ${mapped_provider}`)
   for(let i = 1; i < source.length; i++){
     let s = source[i];
     let sourceId = s[sourceSchema['id']];
@@ -66,13 +73,17 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
         item[mappingSchema[source_provider]] === sourceId)?.[mappingSchema[mapped_provider]] : null ;
     let entries = db.current.foreignIndexes[source_provider]?.[sourceId];
     let entry;
-    if(mappedId){
+    if(!entries && mappedId){
+      entries = db.current.foreignIndexes[mapped_provider]?.[mappedId];
+      entry = entries?.[0];
+    }
+    if(mappedId && !entry){
       //foreignKey index is not unique, locate the exact mapping and leave other entries alone, 
       // other entries may become invalid (mapped provider removed that entry), use another loop at the end to clean up
       entry = entries?.find(en => !en.foreignKeys[mapped_provider] || en.foreignKeys[mapped_provider] === mappedId)
     }else{
       // if there isn't mapped provider at all, it should be not recorded or only one entry recorded
-      entry = entries?.[0];
+      entry = entry || entries?.[0];
     }
     let newKey = !entry?.foreignKeys?.[mapped_provider || 'dummy']
     if(!entry){
@@ -109,13 +120,13 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
       }
     }
   }
+  logger.info(`Processed provider data: ${source_provider} to ${mapped_provider}, took ${(new Date() - start)/1000} seconds`)
 }
 
 (async function entry(){
-  db.input.mx_sophtron = await utils.processCsvFile(file_names.input.mx_sophtron);
-  db.input.sophtron = await utils.processCsvFile(file_names.input.sophtron);
-  db.input.mx = await utils.processCsvFile(file_names.input.mx);
-  db.input.mx_int = await utils.processCsvFile(file_names.input.mx_int);
+  for(let [key, file_name] of Object.entries(file_names.input)){
+    db.input[key] = await utils.processCsvFile(file_name);
+  }
   logger.info('Loaded input. pre-processing mx data')
   for(let map of db.input.mx_sophtron){
     // mx mapping used internal institution guid that's not accessible from public api, update the mapping first
@@ -156,18 +167,21 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   logger.info('Output:')
   logDb(db.output);
   processProvider(db.input.mx_int, [], 'mx_int', '', sourceDataSchema, {})
+  processProvider(db.input.akoya_sandbox, [], 'akoya_sandbox', '', sourceDataSchema, {})
   processProvider(db.input.mx, db.input.mx_sophtron, 'mx', 'sophtron', sourceDataSchema, mx_sophtron_schema)
   processProvider(db.input.sophtron, db.input.mx_sophtron, 'sophtron', 'mx', sourceDataSchema,mx_sophtron_schema)
+  processProvider(db.input.sophtron, db.input.akoya_sophtron, 'sophtron', 'akoya', sourceDataSchema, akoya_sophtron_schema)
+  processProvider(db.input.akoya, db.input.akoya_sophtron, 'akoya', 'sophtron', sourceDataSchema, akoya_sophtron_schema)
   const file_name = utils.resolveDataFileName('output/main', '.csv', false);
     logger.info('Saving to file: ' + file_name)
     var fwriter = fs.createWriteStream(file_name, {
       flags: 'w' // a: append, w: write
     })
-    fwriter.write(`uid,name,url,logo,foreignKeys(${providers.join(';')})`)
+    fwriter.write(`uid,name,url,logo,foreignKeys(${Object.keys(providers).join(';')})`)
     for(let key in db.current.mainIndex){
       let item = db.current.mainIndex[key];
       if(item.name){
-        fwriter.write(`\n${key},${item.name.replaceAll(',', config.csvEscape)},${item.url},${item.logo||''},${providers.map(p => `${item.foreignKeys[p] || ''}`).join(';')}`)
+        fwriter.write(`\n${key},${item.name.replaceAll(',', config.csvEscape)},${item.url},${item.logo||''},${Object.keys(providers).map(p => `${item.foreignKeys[p] || ''}`).join(';')}`)
       }else{
         logger.error(`Invalid item`, item)
       }

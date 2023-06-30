@@ -258,6 +258,7 @@ module.exports = [
           target_id: item.fks[to_provider],
           provider: to_provider,
           logo_url: item.logo_url,
+          name: item.name,
           url: item.url,
           weights,
           cached: weights ? cached : undefined
@@ -300,6 +301,40 @@ module.exports = [
         return;
       }
       res.sendStatus(400)
+    }
+  },
+  {
+    path: 'cache',
+    method: 'get',
+    params: ['key'],
+    func: async function(req, res){
+      let {key} = req.params;
+      const { contextuserid } = req.headers;
+      if(!key){
+        res.sendStatus(400);
+      }
+      if(!contextuserid){
+        res.sendStatus(401);
+      }
+      const ret = await cache.get(key)
+      res.send(ret);
+    }
+  },
+  {
+    path: 'cache',
+    method: 'post',
+    params: ['key'],
+    func: async function(req, res){
+      let {key} = req.params;
+      const { contextuserid } = req.headers;
+      if(!key){
+        res.sendStatus(400);
+      }
+      if(!contextuserid){
+        res.sendStatus(401);
+      }
+      await cache.set(key, req.body)
+      res.sendStatus(200);
     }
   }
 ]
