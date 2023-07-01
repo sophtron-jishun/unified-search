@@ -268,6 +268,7 @@ module.exports = [
           if(item.fks[p]){
             res.send({
               target_id: item.fks[p],
+              name: item.name,
               provider: p,
               logo_url: item.logo_url,
               url: item.url,
