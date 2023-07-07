@@ -13,10 +13,12 @@ const providers = {
   sophtron: utils.resolveDataFileName('input/sophtron', '.csv', true),
   mx: utils.resolveDataFileName('input/mx', '.csv', true),
   akoya: utils.resolveDataFileName('input/akoya', '.csv', true),
+  finicity: utils.resolveDataFileName('input/finicity', '.csv', true),
   mx_int: utils.resolveDataFileName('input/mx_int', '.csv', true),
   akoya_sandbox: utils.resolveDataFileName('input/akoya_sandbox', '.csv', true),
+  finicity_sandbox: utils.resolveDataFileName('input/finicity_sandbox', '.csv', true),
 }
-const sourceDataSchema = {
+const defaultSourceDataSchema = {
   id: 0,
   name: 1,
   url: 2,
@@ -32,10 +34,16 @@ const akoya_sophtron_schema = {
   akoya: 1,
   sophtron: 2,
 }
+const finicity_sophtron_schema = {
+  name: 2,
+  finicity: 0,
+  sophtron: 1,
+}
 const file_names = {
   input: {
     mx_sophtron: utils.resolveDataFileName('input/20230309_mx_institutions_sophtron_g374.csv'),
     akoya_sophtron: utils.resolveDataFileName('input/akoya_sophtron.csv'),
+    finicity_sophtron: utils.resolveDataFileName('input/finicity_sophtron_6_2023.csv'),
     ...providers
   },
   output: {
@@ -124,16 +132,24 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
 }
 
 (async function entry(){
+  let start = new Date();
+  function elapsedSeconds(){
+    return (new Date() - start) / 1000;
+  }
   for(let [key, file_name] of Object.entries(file_names.input)){
     db.input[key] = await utils.processCsvFile(file_name);
   }
-  logger.info('Loaded input. pre-processing mx data')
+  logger.info(`${elapsedSeconds()}s: Loaded input. pre-processing mx data`)
   for(let map of db.input.mx_sophtron){
     // mx mapping used internal institution guid that's not accessible from public api, update the mapping first
-    let public = db.input.mx.find(item => item[sourceDataSchema.name] === map[mx_sophtron_schema.name])
+    let public = db.input.mx.find(item => item[defaultSourceDataSchema.name] === map[mx_sophtron_schema.name])
     if(public){
-      map[mx_sophtron_schema.mx] = public[sourceDataSchema.id]
+      map[mx_sophtron_schema.mx] = public[defaultSourceDataSchema.id]
     }
+  }
+  logger.info(`${elapsedSeconds()}s: Pre-processing finicity data`)
+  for(let map of db.input.finicity_sophtron){
+    map[finicity_sophtron_schema.sophtron] = map[finicity_sophtron_schema.sophtron].toLowerCase()
   }
   logDb(db.input);
   let main = await utils.processCsvFile(file_names.output.main);
@@ -164,26 +180,34 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
     sum[entry.id] = entry;
     return sum;
   }, {})
-  logger.info('Output:')
+  logger.info(`${elapsedSeconds()}s: Output:`)
   logDb(db.output);
-  processProvider(db.input.mx_int, [], 'mx_int', '', sourceDataSchema, {})
-  processProvider(db.input.akoya_sandbox, [], 'akoya_sandbox', '', sourceDataSchema, {})
-  processProvider(db.input.mx, db.input.mx_sophtron, 'mx', 'sophtron', sourceDataSchema, mx_sophtron_schema)
-  processProvider(db.input.sophtron, db.input.mx_sophtron, 'sophtron', 'mx', sourceDataSchema,mx_sophtron_schema)
-  processProvider(db.input.sophtron, db.input.akoya_sophtron, 'sophtron', 'akoya', sourceDataSchema, akoya_sophtron_schema)
-  processProvider(db.input.akoya, db.input.akoya_sophtron, 'akoya', 'sophtron', sourceDataSchema, akoya_sophtron_schema)
+  processProvider(db.input.mx_int, [], 'mx_int', '', defaultSourceDataSchema, {})
+  processProvider(db.input.akoya_sandbox, [], 'akoya_sandbox', '', defaultSourceDataSchema, {})
+  processProvider(db.input.finicity_sandbox, [], 'finicity_sandbox', '', defaultSourceDataSchema, {})
+
+  processProvider(db.input.mx, db.input.mx_sophtron, 'mx', 'sophtron', defaultSourceDataSchema, mx_sophtron_schema)
+  processProvider(db.input.sophtron, db.input.mx_sophtron, 'sophtron', 'mx', defaultSourceDataSchema,mx_sophtron_schema)
+
+  processProvider(db.input.sophtron, db.input.akoya_sophtron, 'sophtron', 'akoya', defaultSourceDataSchema, akoya_sophtron_schema)
+  processProvider(db.input.akoya, db.input.akoya_sophtron, 'akoya', 'sophtron', defaultSourceDataSchema, akoya_sophtron_schema)
+
+  processProvider(db.input.sophtron, db.input.finicity_sophtron, 'sophtron', 'finicity', defaultSourceDataSchema, finicity_sophtron_schema)
+  processProvider(db.input.finicity, db.input.finicity_sophtron, 'finicity', 'sophtron', defaultSourceDataSchema, finicity_sophtron_schema)
+  
   const file_name = utils.resolveDataFileName('output/main', '.csv', false);
-    logger.info('Saving to file: ' + file_name)
-    var fwriter = fs.createWriteStream(file_name, {
-      flags: 'w' // a: append, w: write
-    })
-    fwriter.write(`uid,name,url,logo,foreignKeys(${Object.keys(providers).join(';')})`)
-    for(let key in db.current.mainIndex){
-      let item = db.current.mainIndex[key];
-      if(item.name){
-        fwriter.write(`\n${key},${item.name.replaceAll(',', config.csvEscape)},${item.url},${item.logo||''},${Object.keys(providers).map(p => `${item.foreignKeys[p] || ''}`).join(';')}`)
-      }else{
-        logger.error(`Invalid item`, item)
-      }
+  logger.info(`${elapsedSeconds()}s: Saving to file: ${file_name}`)
+  var fwriter = fs.createWriteStream(file_name, {
+    flags: 'w' // a: append, w: write
+  })
+  fwriter.write(`uid,name,url,logo,foreignKeys(${Object.keys(providers).join(';')})`)
+  for(let key in db.current.mainIndex){
+    let item = db.current.mainIndex[key];
+    if(item.name){
+      fwriter.write(`\n${key},${item.name.replaceAll(',', config.csvEscape)},${item.url},${item.logo||''},${Object.keys(providers).map(p => `${item.foreignKeys[p] || ''}`).join(';')}`)
+    }else{
+      logger.error(`Invalid item`, item)
     }
+  }
+  logger.info(`${elapsedSeconds()}s: Done`)
 })()

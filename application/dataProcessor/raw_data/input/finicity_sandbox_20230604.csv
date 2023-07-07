@@ -1,0 +1,22 @@
+id,name,url,logo_url
+101509,cc bank t,https://finbank.prod.fini.city/ccbanktest/login.jsp,https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/101509/logo.svg
+101732,finbank,https://finbank.prod.fini.city/ccbankimagemfa/login.jsp,https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/101732/logo.svg
+102057,ds-rfni,http://www.finbank.com,
+102105,finbank profiles - a,http://www.finbank.com/login,https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/102105/logo.svg
+102168,finbank profiles - b,http://www.finicity.com,https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/102168/logo.svg
+102176,finbank oauth,https://fin03.finicity.com/oauth2/finbank/authorize?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}&scope=accounts&state={state},https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/102176/logo.svg
+102219,finbank o,https://finbankofx.finicity.com/login,https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/102219/logo.svg
+102220,health check,http://www.finbank.com,
+170680,finbank c,http://www.finbank.com,https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/170680/logo.svg
+170681,finbank p,https://finbank.prod.fini.city/ccbankimagemfa/login.jsp,https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/170681/logo.svg
+170704,uuu bank,http://www.finbank.com,
+170731,fff,https://fin03.finicity.com/oauth2/finbank/authorize?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}&scope=accounts&state={state},
+170776,finbank billable,https://finbank.prod.fini.city/ccbankimagemfa/login.jsp,https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/170776/logo.svg
+170830,finbank m,http://finbank.finicity.com,https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/170830/logo.svg
+171011,finbank oauth billable,https://fin03.finicity.com/oauth2/finbank/authorize?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}&scope=accounts&state={state},https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/171011/logo.svg
+171347,finbank p australia,https://finbank-aus.dev.fini.city/ccbankimagemfa/login.jsp,https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/171347/logo.svg
+176078,finbank offline,https://finbank.prod.fini.city/ccbankimagemfa/login.jsp,https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/176078/logo.svg
+176080,account validation assistant,https://finbank.dev.fini.city/ccbankofx/login.jsp,
+176081,finbank profiles j,https://finbank.prod.fini.city/finbankprofiles/login.jsp,https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/176081/logo.svg
+176082,finbank decertified,https://finbank.prod.fini.city/ccbankimagemfa/login.jsp,https://prod-carpintero-branding.s3.us-west-2.amazonaws.com/176082/logo.svg
+176099,placeholder - pagescraper,https://finbank.prod.fini.city/ccbankimagemfa/login.jsp,

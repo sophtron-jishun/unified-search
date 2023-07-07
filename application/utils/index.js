@@ -4,15 +4,33 @@ const readline = require('readline');
 const config = require('../config');
 const { logger } = require('sph-base');
 
-async function processCsv(inputStream) {
+async function processFileStream(inputStream, lineProcessor, aggregator){
   const rl = readline.createInterface({
     input: inputStream,
     crlfDelay: Infinity
   });
-  const ret = [];
   // Note: we use the crlfDelay option to recognize all instances of CR LF
   // ('\r\n') in input.txt as a single line break.
   for await (const line of rl) {
+    if(line){
+      lineProcessor(line, aggregator)
+    }
+  }
+  return aggregator;
+}
+
+async function processFile(file_name, lineProcessor, aggregator){
+  logger.info(`Loading file content from: ${file_name}`)
+  if(fs.existsSync(file_name)){
+    const fileStream = fs.createReadStream(file_name);
+    return processFileStream(fileStream, lineProcessor, aggregator)
+  }
+  logger.info(`File not exist: ${file_name}`)
+  return []
+}
+
+async function processCsv(inputStream) {
+  return processFileStream(inputStream, (line, aggregator) => {
     let arr = line.split(',');
     let i = 0;
     while(i > 0 && arr.length > ret[0].length - 1){
@@ -34,17 +52,8 @@ async function processCsv(inputStream) {
         }
       }
     }
-    // if(arr[0] == '647'){
-    //   logger.info(ret[0])
-    //   logger.info(arr)
-    // }
-    ret.push(arr);
-    // if(i > 10){
-    //   //break;
-    // }
-    i++;
-  }
-  return ret;
+    aggregator.push(arr);
+  }, [])
 }
 
 async function processCsvFile(file_name){
@@ -71,7 +80,7 @@ function arrayToCsv(arr, streamWriter, header_str, line_str_func){
 function arrayToCsvFile(arr, data_file_name, header_str, line_str_func){
   if(data_file_name){
     const file_name = resolveDataFileName(data_file_name, '.csv', true);
-    logger.info('Saving to file: ' + file_name)
+    logger.info(`Saving ${arr.length} lines to file: ${file_name}`)
     var fwriter = fs.createWriteStream(file_name, {
       flags: 'w' // a: append, w: write
     })
@@ -81,6 +90,8 @@ function arrayToCsvFile(arr, data_file_name, header_str, line_str_func){
 
 module.exports = {
   resolveDataFileName,
+  processFile,
+  processFileStream,
   processCsv,
   processCsvFile,
   arrayToCsv,

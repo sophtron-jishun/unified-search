@@ -78,9 +78,20 @@ async function loadData(){
     return [];
   }
   logger.info(`loaded data: ${arr.length}`);
-
   ret.data = arr.map((row) => row[0]);
-  ret.searchIndex = tools.buildIndex(arr);
+  logger.info(`loading index, version: ${version}`);
+  const indexResponse = await axios.get(config.DataBaseUrl + `db/${version}.txt`, {
+    responseType: 'stream'
+  }).catch(err => {})
+  const indexStream = indexResponse?.data;
+  if(!indexStream){
+    logger.warning('Unable to find cached index, building')
+    ret.searchIndex = tools.buildIndex(arr); 
+  }else{
+    ret.searchIndex = await utils.processFileStream(indexStream, tools.deserializeIndexRow, {})
+    logger.info(`loaded index: ${Object.keys(ret.searchIndex).length}`);
+  }
+
   let providers = arr[0].pop().replace('foreignKeys(', '').replace(')', '').split(';')
   logger.info(`Building key index, providers: ${providers.join(';')}`);
   ret.keyIndex = arr.reduce((obj, row, index) => {
