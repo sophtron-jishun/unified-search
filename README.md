@@ -26,7 +26,7 @@ Provide a universal institution search and multi-provider mapping service
 - Optional: enable the commented code in [buildIndex.js](application/dataProcessor/tools/buildIndex.js) and use `node dataProcessor/tools/buildIndex.js` to generate `mainIndex.csv` for manual checking (testing)
 
 # Publishing the data
-- Go to [data](data/) and update the version info for different envs in `upload.sh` then use `./upload.sh` to publish the data
+- Go to [deployment](deployment/) and update the version info for different envs in `upload.sh` then use `./upload.sh -- data` to publish the data
 - If a new version is published for the specific env, it takes ~30s that the instance discovers it and update the index  
 
 # Add a new provider

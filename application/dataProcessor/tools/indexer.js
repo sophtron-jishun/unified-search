@@ -43,24 +43,29 @@ let betterNameSuffixes = [
 ]
 
 function buildIndex(mainInput){
-  const mainIndex = {};
+  const mainIndex = new Map();
+  const start = new Date();
+  logger.info(`Building index, main input: ${mainInput.length}`)
   const nameIndex = mainInput.reduce((obj, cur) => {
-    obj[cur[1].toLowerCase()] = [...(obj[cur[1].toLowerCase()] || []) ,cur];
+    const key = cur[1].toLowerCase();
+    if(!obj.has(key)){
+      obj.set(key, []);
+    }
+    obj.get(key).push(cur);
     return obj
-  }, {})
-  logger.info(`Building index, Loaded main input: ${mainInput.length}`)
-  for(let i = 1; i< mainInput.length; i++){
+  }, new Map())
+  for(let i = 0; i < mainInput.length; i++){
     let entry = mainInput[i];
     let name = entry[1].toLowerCase();
     let skip = false;
     if(!entry[3]) { // no logo
-      if(betterNameSuffixes.some(bns => nameIndex[name + bns]?.some(item => !!item?.[3]))){
+      if(betterNameSuffixes.some(bns => nameIndex.get(name + bns)?.some(item => !!item?.[3]))){
         skip = true;
         continue;
       }
     }
-    if(nameIndex[name].length > 1){
-      for(let dup of nameIndex[name]){
+    if(nameIndex.get(name).length > 1){
+      for(let dup of nameIndex.get(name)){
         if(dup[0] !== entry[0]){
           let arr =  dup[4].split(';');
           if(entry[4].split(';').every((provider, index) => !provider || arr[index])){
@@ -76,10 +81,10 @@ function buildIndex(mainInput){
     let terms = extractTerms(name);
 
     for(let t in terms){
-      if(!mainIndex[t]){
-        mainIndex[t] = []
+      if(!mainIndex.has(t)){
+        mainIndex.set(t, [])
       }
-      mainIndex[t].push({
+      mainIndex.get(t).push({
         order: terms[t].order,
         row: i,
         wordLength: terms[t].wordLength,
@@ -89,9 +94,9 @@ function buildIndex(mainInput){
   }
   logger.info(`Built search index, sorting`)
   for(let t in mainIndex){
-    mainIndex[t] = mainIndex[t].sort((a,b) => a.totalLength - b.totalLength || a.wordLength - b.wordLength || a.order - b.order);
+    mainIndex.set(t, mainIndex.get(t).sort((a,b) => a.totalLength - b.totalLength || a.wordLength - b.wordLength || a.order - b.order));
   }
-  logger.info(`Built search index, done sorting`)
+  logger.info(`Built search index, done sorting, total time spent ${(new Date() - start)/1000}s`)
   return mainIndex;
 }
 
@@ -101,15 +106,15 @@ function serializeIndexRow(obj){
 
 function serializeIndex(mainIndex){
   let ret = [];
-  for(let key in mainIndex){
-    ret.push(`${key}:${mainIndex[key].map(serializeIndexRow).join(',')}`)
+  for(let [key, entry] of mainIndex){
+    ret.push(`${key}:${entry.map(serializeIndexRow).join(',')}`)
   }
   return ret;
 }
 
 function deserializeIndexRow(str, aggregator){
   let arr0 = str.split(':') 
-  aggregator[arr0[0]] = arr0[1].split(',').map(item => {
+  aggregator.set(arr0[0], arr0[1].split(',').map(item => {
       let arr2 = item.split(';');
       return {
         order: parseInt(arr2[0]),
@@ -117,7 +122,7 @@ function deserializeIndexRow(str, aggregator){
         wordLength: parseInt(arr2[2]),
         totalLength: parseInt(arr2[3]),
       }
-    })
+    }))
 }
 
 module.exports = {

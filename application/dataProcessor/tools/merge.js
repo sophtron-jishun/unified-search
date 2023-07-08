@@ -43,7 +43,7 @@ const file_names = {
   input: {
     mx_sophtron: utils.resolveDataFileName('input/20230309_mx_institutions_sophtron_g374.csv'),
     akoya_sophtron: utils.resolveDataFileName('input/akoya_sophtron.csv'),
-    finicity_sophtron: utils.resolveDataFileName('input/finicity_sophtron_6_2023.csv'),
+    finicity_sophtron: utils.resolveDataFileName('input/finicity_sophtron_7_6_2023.csv'),
     ...providers
   },
   output: {
@@ -53,16 +53,15 @@ const file_names = {
 
 const db = {
   current: {
-    mainIndex: {},
-    foreignIndexes: {
-    }
+    mainIndex: new Map(),
+    foreignIndexes: new Map()
   },
   input: {
 
   }
 }
 for(let p in providers){
-  db.current.foreignIndexes[p] = {}
+  db.current.foreignIndexes.set(p, new Map());
 }
 
 function logDb(db){
@@ -79,10 +78,10 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
     // find the mapping if exists
     let mappedId = mapped_provider ? mapping.find(item => 
         item[mappingSchema[source_provider]] === sourceId)?.[mappingSchema[mapped_provider]] : null ;
-    let entries = db.current.foreignIndexes[source_provider]?.[sourceId];
+    let entries = db.current.foreignIndexes.get(source_provider)?.get(sourceId);
     let entry;
     if(!entries && mappedId){
-      entries = db.current.foreignIndexes[mapped_provider]?.[mappedId];
+      entries = db.current.foreignIndexes.get(mapped_provider)?.get(mappedId);
       entry = entries?.[0];
     }
     if(mappedId && !entry){
@@ -98,12 +97,13 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
       // take the current provider used id as the universal Id, first come first serve
       // if no other providers to map, make the universal id specific
       let uid = mapped_provider ? sourceId: `${source_provider}_${sourceId}`;
-      entry = db.current.mainIndex[uid] = {
+      entry = {
         id: uid,
         foreignKeys: {
           [source_provider]: sourceId
         }
-      }
+      };
+      db.current.mainIndex.set(uid, entry)
     }
     if(!entry.name || entry.id === sourceId){
       // entry may get updated, 
@@ -115,16 +115,16 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
 
     // ensure foreign index so that this can be found later 
     if(newKey){
-      if(!db.current.foreignIndexes[source_provider]?.[sourceId]){
-        db.current.foreignIndexes[source_provider][sourceId] = [];
+      if(!db.current.foreignIndexes.get(source_provider).has(sourceId)){
+        db.current.foreignIndexes.get(source_provider).set(sourceId, []);
       }
-      db.current.foreignIndexes[source_provider][sourceId].push(entry);
+      db.current.foreignIndexes.get(source_provider).get(sourceId).push(entry);
       if(mappedId){
         entry.foreignKeys[mapped_provider] = mappedId;
-        if(!db.current.foreignIndexes[mapped_provider]?.[mappedId]){
-          db.current.foreignIndexes[mapped_provider][mappedId] = [];
+        if(!db.current.foreignIndexes.get(mapped_provider).has(mappedId)){
+          db.current.foreignIndexes.get(mapped_provider).set(mappedId, []);
         }
-        db.current.foreignIndexes[mapped_provider][mappedId].push(entry);
+        db.current.foreignIndexes.get(mapped_provider).get(mappedId).push(entry);
       }
     }
   }
@@ -152,34 +152,33 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
     map[finicity_sophtron_schema.sophtron] = map[finicity_sophtron_schema.sophtron].toLowerCase()
   }
   logDb(db.input);
-  let main = await utils.processCsvFile(file_names.output.main);
-  db.current.mainIndex = main.reduce((sum, item) => {
-    let entry = {};
-    for(let i = 0; i < mainIndexSchema.length - 1; i++){
-      // make an main index entry
-      entry[mainIndexSchema[i]] = item[i];
-    }
-    let foreignKeys = item[mainIndexSchema.length - 1].split(';');
-    entry.foreignKeys = {}
-    //loop through provider list and save foreignkeys by provider name if exists
-    for(let i = 0; i < providers.length; i++){
-      let providerName = providers[i];
-      // save foreign key value to entry
-      entry.foreignKeys[providerName] = foreignKeys[i];
-      if(foreignKeys[i]){
-        // index the foreign key for later lookup
-        if(!db.current.foreignIndexes[providerName]){
-          db.current.foreignIndexes[providerName] = {
-            // there could by many to many mappings, the foreignKey index is not unique
-            [foreignKeys[i]]:[]
-          }
-        }
-        db.current.foreignIndexes[providerName][foreignKeys[i]].push(obj);
-      }
-    }
-    sum[entry.id] = entry;
-    return sum;
-  }, {})
+  // Load existing mainIndex from file for deltas, may speed things up? 
+  // let main = await utils.processCsvFile(file_names.output.main);
+  // db.current.mainIndex = main.reduce((sum, item) => {
+  //   let entry = {};
+  //   for(let i = 0; i < mainIndexSchema.length - 1; i++){
+  //     // make an main index entry
+  //     entry[mainIndexSchema[i]] = item[i];
+  //   }
+  //   let foreignKeys = item[mainIndexSchema.length - 1].split(';');
+  //   entry.foreignKeys = {}
+  //   //loop through provider list and save foreignkeys by provider name if exists
+  //   for(let i = 0; i < providers.length; i++){
+  //     let providerName = providers[i];
+  //     // save foreign key value to entry
+  //     entry.foreignKeys[providerName] = foreignKeys[i];
+  //     if(foreignKeys[i]){
+  //       // index the foreign key for later lookup
+  //       if(!db.current.foreignIndexes.get(providerName).has(foreignKeys[i])){
+  //         // there could by many to many mappings, the foreignKey index is not unique
+  //         db.current.foreignIndexes.get(providerName).set(foreignKeys[i], [])
+  //       }
+  //       db.current.foreignIndexes.get(providerName].get(foreignKeys[i]).push(obj);
+  //     }
+  //   }
+  //   sum.set(entry.id, entry);
+  //   return sum;
+  // }, new Map())
   logger.info(`${elapsedSeconds()}s: Output:`)
   logDb(db.output);
   processProvider(db.input.mx_int, [], 'mx_int', '', defaultSourceDataSchema, {})
@@ -201,8 +200,7 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
     flags: 'w' // a: append, w: write
   })
   fwriter.write(`uid,name,url,logo,foreignKeys(${Object.keys(providers).join(';')})`)
-  for(let key in db.current.mainIndex){
-    let item = db.current.mainIndex[key];
+  for(let [key, item] of db.current.mainIndex){
     if(item.name){
       fwriter.write(`\n${key},${item.name.replaceAll(',', config.csvEscape)},${item.url},${item.logo||''},${Object.keys(providers).map(p => `${item.foreignKeys[p] || ''}`).join(';')}`)
     }else{

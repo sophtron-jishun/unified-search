@@ -1,7 +1,8 @@
 const {logger} = require('sph-base');
-const {buildIndex,serializeIndex} = require('./indexer');
+const {buildIndex,serializeIndex, deserializeIndexRow} = require('./indexer');
 const utils = require('../../utils');
 const fs = require('fs')
+
 
 const mainInput = utils.resolveDataFileName('output/main', '.csv', false);
 const indexOutput = utils.resolveDataFileName('output/index', '.txt', false);

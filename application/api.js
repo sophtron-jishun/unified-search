@@ -54,6 +54,10 @@ function weightByPerformance(metrics, pref){
 }
 
 async function loadData(){
+  let start = new Date();
+  function elapsedSeconds(){
+    return (new Date() - start) / 1000;
+  }
   let versions = await axios.get(`${config.DataBaseUrl}version.json`).then(res => res.data);
   let version = versions[config.Env];
   let ret = {version};
@@ -61,7 +65,7 @@ async function loadData(){
     logger.info(`Data version unchanged: ${version}`)
     return
   }
-  logger.info(`loading data, version: ${version}`);
+  logger.info(`loading data, version: ${version}, ${elapsedSeconds()}s`);
   const response = await axios.get(config.DataBaseUrl + `db/${version}.csv`, {
     responseType: 'stream'
   }).catch(err => {
@@ -77,23 +81,25 @@ async function loadData(){
   if(!arr){
     return [];
   }
-  logger.info(`loaded data: ${arr.length}`);
+  logger.info(`loaded data: ${arr.length}, ${elapsedSeconds()}s`);
   ret.data = arr.map((row) => row[0]);
-  logger.info(`loading index, version: ${version}`);
+  logger.info(`loading index, version: ${version}, ${elapsedSeconds()}s`);
+  //ret.searchIndex = tools.buildIndex(arr); 
+
   const indexResponse = await axios.get(config.DataBaseUrl + `db/${version}.txt`, {
     responseType: 'stream'
   }).catch(err => {})
   const indexStream = indexResponse?.data;
   if(!indexStream){
-    logger.warning('Unable to find cached index, building')
+    logger.warning(`Unable to find cached index, building, ${elapsedSeconds()}s`)
     ret.searchIndex = tools.buildIndex(arr); 
   }else{
-    ret.searchIndex = await utils.processFileStream(indexStream, tools.deserializeIndexRow, {})
-    logger.info(`loaded index: ${Object.keys(ret.searchIndex).length}`);
+    ret.searchIndex = await utils.processFileStream(indexStream, tools.deserializeIndexRow, new Map())
+    logger.info(`loaded index: ${ret.searchIndex.size}, ${elapsedSeconds()}s`);
   }
 
   let providers = arr[0].pop().replace('foreignKeys(', '').replace(')', '').split(';')
-  logger.info(`Building key index, providers: ${providers.join(';')}`);
+  logger.info(`Building key index, ${elapsedSeconds()}s, providers: ${providers.join(';')}`);
   ret.keyIndex = arr.reduce((obj, row, index) => {
     if(index === 0){
       return obj;
@@ -116,10 +122,10 @@ async function loadData(){
     //   item.provider = Object.keys()[0];
     //   item.id = Object.values()[0];
     // }
-    obj[item.id] = item;
+    obj.set(item.id, item);
     return obj;
-  }, {})
-  logger.info(`Initial data loaded and indexed`);
+  }, new Map())
+  logger.info(`Initial data loaded and indexed, ${elapsedSeconds()}s`);
   db = ret;
 }
 loadData();
@@ -133,7 +139,7 @@ async function searchInstitutions(name){
     .toLowerCase().split(' ')
     .filter(s => s.trim().length > 1)
     .map(s => s.trim());
-  let findings = queries.map((q, i) => (db.searchIndex[q] || []).filter(t => t.order >= i)).filter(a => a.length > 0);
+  let findings = queries.map((q, i) => (db.searchIndex.get(q) || []).filter(t => t.order >= i)).filter(a => a.length > 0);
   let matches = findings.length == 1 ? (findings[0] || []).map(item => item.row) : findings.reduce((arr, cur, index) => {
     for(let item of cur){
       if(arr.length > config.MaxSearchResults){
@@ -148,8 +154,8 @@ async function searchInstitutions(name){
     }
     return arr;
   }, [])
-  let urlIndex = {};
-  let domainIndex = {};
+  let urlIndex = new Set();
+  let domainIndex = new Set();
   let nameIndex = {};
   return {
     // queries,
@@ -157,24 +163,24 @@ async function searchInstitutions(name){
     // matches,
     institutions: matches.filter(m => {
       let id = db.data[m];
-      let entry = db.keyIndex[id];
-      if(!urlIndex[m.url]){
+      let entry = db.keyIndex.get(id);
+      if(!urlIndex.has(m.url)){
         let host = url.parse(entry.url)?.hostname
         if(entry.logo_url){
-          domainIndex[host] = true;
+          domainIndex.add(host);
           nameIndex[entry.name.toLowerCase()] = true;
-        }else if(domainIndex[host]){
+        }else if(domainIndex.has(host)){
           return false;
         }else if(Object.keys(nameIndex).some(i => entry.name.toLowerCase().startsWith(i))){
           return false;
         }
-        return urlIndex[entry.url] = true
+        return urlIndex.add(entry.url)
       }
       return false
     }).map(m => {
       //let rowNumber = m.substring(1);
       let id = db.data[m];
-      let entry = db.keyIndex[id];
+      let entry = db.keyIndex.get(id);
       return {
         // index: m,
         name: entry.name,
