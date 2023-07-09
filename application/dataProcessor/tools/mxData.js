@@ -16,7 +16,7 @@ const header = 'code,name,url,medium_logo_url';
 const row = (item)=>`${item.code},${item.name.trim().replaceAll(',', config.CsvEscape)},${item.url},${filter_logo(item)}`;
 mxClient.batchLoadInstitutions('prod').then(all => {
   //console.log(all)
-  utils.arrayToCsvFile(all, 'input/mx', header, row )
+  utils.arrayToCsvFile(all.filter(b => !b.name.toLowerCase().startsWith('finbank')), 'input/mx', header, row )
 });
 mxClient.batchLoadInstitutions('int').then(all => {
   // console.log(all)

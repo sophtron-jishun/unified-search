@@ -15,6 +15,7 @@ function filterInstitution(item){
     && !name.startsWith('test')
     && !name.endsWith('test')
     && !name.startsWith('dummy')
+    && !name.startsWith('finbank')
     && !name.endsWith('dummy')
     && name !== 'corporation'
     && name !== 'neobanxdev'
