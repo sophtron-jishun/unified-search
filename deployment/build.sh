@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-version=20230709ARM0
+version=20230710ARM0
 
 case $1 in 
   "-b")

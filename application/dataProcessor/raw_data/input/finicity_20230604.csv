@@ -5886,7 +5886,6 @@ id,name,url,logo_url
 101726,orlex government employees credit union,https://orlex.com/,http://www.orlex.com/
 101729,portico benefit services,https://myportico.porticobenefits.org,https://myportico.porticobenefits.org/SignIn
 101730,nikkei credit union,https://www.nikkeicu.org/,https://www.nikkeicu.org/
-101732,finbank,https://finbank.prod.fini.city/ccbankimagemfa/login.jsp,https://www.mbfinancial.com/Login
 101737,ideal image credit card,http://www.idealimage.com/index-fb-contest.php,https://d.comenity.net/idealimage/pub/signin/SignIn.xhtml
 101738,first united mortgage,https://www.firstunitedbank.com/my-accounts,http://firstunitedmortgage.com/
 101739,massachusetts deferred compensation smart plan,https://mass-smart.empower-retirement.com/participant/#/login?accu=massachusetts,https://mdcplan.empower-retirement.com/participant/#/login?accu=MississippiWR
@@ -6054,7 +6053,6 @@ id,name,url,logo_url
 102052,gamestop,https://d.comenity.net/gamestop/public/home.xhtml,https://d.comenity.net/gamestop/pub/Home.xhtml
 102053,midland national life insurance company,https://www.midlandnational.com/,https://www.midlandnational.com/midlandloginpage
 102056,ih credit union,https://www.ihcreditunion.com/,https://www.ihcreditunion.com/online-banking-changes/
-102057,ds-rfni,http://www.finbank.com,http://www.rbcds.com/dominion-securities-online.html
 102058,pct federal credit union,pctfcu.org,http://www.pctfcu.org/
 102059,forest park national bank & trust co (bussiness banking),http://www.forestparkbank.com/,http://www.forestparkbank.com/o_online.htm
 102060,cent credit union,https://centcu.org/,https://ibanking.centcu.org/
@@ -6079,7 +6077,6 @@ id,name,url,logo_url
 102100,higher education servicing corp.,https://www.hescloans.com/,http://acs-education.com/
 102101,technology credit union - business banking,https://www.techcu.com/,https://www.navigantcu.org/business
 102102,menards business solutions,https://www.hrscommercial.com/ccrsc/ecare?cmd_displaylogin=&org=726	,https://clients.mindbodyonline.com/classic/home%3Fstudioid%3D47239
-102105,finbank profiles - a,http://www.finbank.com,http://www.bankofgeneva.com/
 102106,quiktrip credit card,https://quiktrip.fdecs.com/ecustservice/,https://quiktrip.fdecs.com/
 102107,allianz - hewit,https://leplb0610.portal.hewitt.com/web/allianz,https://leplb0610.portal.hewitt.com/web/allianz/login
 102108,midfirst bank (ok) - imanage business banking,https://www.midfirst.com/business,https://firstbankrichmond.com/online-banking/
@@ -6124,14 +6121,12 @@ id,name,url,logo_url
 102163,jetblue credit card,http://www.jetblue.com/,https://www.jetbluebusinesscard.com/businesscard/Login.do?promoCode=JetBlue
 102165,heartland ecsi,https://heartland.ecsi.net/,https://heartland.ecsi.net/index.main.html#/access/signIn
 102166,heritage bank business banking,https://www.heritagebanknw.com,https://one.heritagebanknw.com/ui
-102168,finbank profiles - b,http://www.finicity.com,bankmobilevibe.com
 102169,southern california gas company,https://www.socalgas.com,https://myaccount.socalgas.com/
 102170,prime meridian bank,https://www.primemeridianbank.com/,https://www.primemeridianbank.com/services/services/online-banking.html
 102171,kaw valley state bank,http://www.kvsb.net/,https://www.kawvalleystatebank.com/
 102172,first bank cc,https://ezcardview.fdecs.com/,https://www.fbvirginia.com/Personal/Bank/Bank-on-the-Go/Online-Banking
 102173,laurentian bank,https://www.banquelaurentienne.ca/en/personal_banking_services/,https://blcweb.banquelaurentienne.ca/lang/en/BLCDirect/
 102174,duca financial services credit union,https://www.duca.com/,https://www.duca.com/
-102176,finbank oauth,https://auth.finbank.com/,https://www.academybank.com/
 102185,triad bank - personal banking,https://www.triadbank.com/,https://www.bankorion.com/online-services.php
 102186,chime,https://www.chimebank.com,https://member.chime.com/users/sign_in
 102188,testing_nov,https://www.firstrepublic.com/,https://hiset.ets.org/myhiset
@@ -6140,14 +6135,10 @@ id,name,url,logo_url
 102205,aflac federal credit union,http://www.aflacfcu.net/,http://www.aflacfcu.net/
 102216,minnesota national bank,http://www.mn-bank.com/,http://www.mn-bank.com/online-banking
 102217,placeholder b2, https://www.firstcitizens.com,https://d.comenity.net/childrensplace
-102219,finbank o,https://finbankofx.finicity.com,https://www.mbfinancial.com/Login
-102220,health check,http://www.finbank.com,https://www.ok.gov/sib/ClaimLink/ClaimLink_for_Members/
 102221,new york's 529 advisor guided college savings program,https://www.ny529advisor.com/home,https://ny529advisor.org/nyatpl/auth/ll.cs
 102225,ume federal credit union,https://www.umecreditunion.com/,https://online.usecreditunion.org/sign-in
 102226,quad city bank & trust(business online banking),https://businessonlinebanking.qcbt.com,https://bob.sovereignbank.com/wcmfd/wcmpw/CustomerLogin
 102227,choice bank - business,http://www.venturebankonline.com,https://choicefinancialbusiness.ebanking-services.com/eAM/Credential/Index?appId=beb&brand=choicefinancialbusiness
-170680,finbank c,http://www.finbank.com,https://www.mbfinancial.com/Login
-170681,finbank p,https://finbank.prod.fini.city/ccbankimagemfa/login.jsp,https://www.mbfinancial.com/Login
 170682,placeholder ccdf01,https://www.regions.com/personal_banking.rf,https://d.comenity.net/childrensplace
 170683,minnesota bank & trust,https://www.mnbankandtrust.com/,https://www.midwestone.com/
 170684,truecore federal credit union,https://www.truecore.org/,https://www.truecore.org/
@@ -6167,7 +6158,6 @@ id,name,url,logo_url
 170700,peapack gladstone bank - wealth management,https://www.pgbank.com/,https://login.infovisa.com/STS/Index/?wa=wsignin1.0&wtrealm=https:%2f%2ficp.infovisa.com%2f&wctx=rm%3d1%26id%3dIgnored%26ru%3d%252f0283%252f&wct=2019-02-27T23:03:21Z&wreply=https:%2f%2ficp.infovisa.co
 170701,the union bank co.- business banking,https://www.theubank.com/,https://www.bankorion.com/online-services.php
 170702,silver gate bank,https://www.silvergatebank.com,https://www.silvergatebank.com/
-170704,uuu bank,http://www.finbank.com,https://www.umb.com/personal
 170705,placeholder a2,a2,https://d.comenity.net/childrensplace
 170706,placeholder cca,cca,http://www.flex-america.biz/
 170707,placeholder ccb,ccb,http://achdirect.com/login.html
@@ -6184,7 +6174,6 @@ id,name,url,logo_url
 170720,preferred bank,https://www.preferredbank.com/,https://mypfbank.myebanking.net/#/login
 170721,famu fcu,https://famufcu.com/ ,https://www.netbranch.app.fiserv.com/FMFCU/Default.aspx
 170722,td bank etreasury,https://www.tdbank.com/business/etreasury.html,https://etreasury.tdbank.com/s1gcb/logon/sbuser
-170723,placeholder - new fi obb,https://finbank.prod.fini.city/ccbankimagemfa/login.jsp,https://www.anchorbank.com/
 170724,bank5 connect,www.bank5connect.com,https://www.bank5connect.com/
 170725,long reach federal credit union,https://lrefcu.org/,https://www.outreachcu.com/
 170726,american bank of oklahoma,https://www.americanbankok.com/,https://www.americanbankmontana.com/
@@ -6192,7 +6181,6 @@ id,name,url,logo_url
 170728,belmont bank & trust,https://belmontbank.com/#page=page-1,https://www.netteller.com/wilsonbank/login.cfm
 170729,valley national bank business,https://www.valley.com/,https://business.valley.com/valley/uux.aspx#/login
 170730,first national bank - business,https://www.fnb-online.com/,https://ecorp.fnb-online.com/EBC_FNB/Login/031301053/1
-170731,fff,https://auth.finbank.com/,https://southcarolina.forums.rivals.com/forums/the-insiders-forum.8/
 170732,canandaigua federal credit union,http://www.canandaiguafcu.com/,http://www.canandaiguafcu.com/
 170733,shore2shore community federal credit union,https://www.shore2shorecu.com/,https://www.shore2shorecu.com/
 170734,plains state bank,https://psbplains.com/,http://psbplains.com/
@@ -6218,7 +6206,6 @@ id,name,url,logo_url
 170768,bb&t cashmanager online,https://www.bbt.com/commercial/start.page,http://cashmanageronline.bbt.com
 170770,northview bank,https://www.northviewbank.com,https://www.northviewbank.com/online-banking
 170774,premier bank business,https://www.yourpremierbank.com/,https://businessonline.bremer.com/
-170776,finbank billable,https://finbank.prod.fini.city/ccbankimagemfa/login.jsp,http://www.saukvillage.org/
 170777,united bank creditcard services,https://www.bankwithunited.com/,https://www.unitedfinancialcu.org/onlineservices/
 170778,capital one,https://www.capitalone.com/,https://www.capitalone.com/
 170780,connectup online,https://connectuponline.fdecs.com/ecustservice/,https://www.assanteservices.com/aiol/#!/en/aio/landing/
@@ -6251,7 +6238,6 @@ id,name,url,logo_url
 170826,electrical workers 22 federal credit union,https://www.ew22fcu.org/,https://www.ew22fcu.org/
 170828,western alliance bank,https://www.westernalliancebancorporation.com/,https://cibng.ibanking-services.com/eAM/Credential/Index?orgId=103_122105980&FIFID=122105980&brand=103_122105980_006&BRCHID=006&appId=CeB&FIORG=103
 170829,trubank,http://www.trubank.bank,https://trubank.bank/
-170830,finbank m,http://finbank.finicity.com,https://www.mbfinancial.com/Login
 170831,family first credit union,https://www.ffcuga.org/,https://www.fam1st.com/
 170832,east west bank - business banking,https://www.eastwestbank.com/en,https://treasury.jackhenry.com/intrustbank/login
 170835,capital one-commercial card connect,https://verified.capitalone.com/auth/other-products,https://mycard.capitalone.com/icce-login/#/login
@@ -6361,7 +6347,6 @@ id,name,url,logo_url
 171008,first ic bank - business banking,https://www.firsticbank.com/,https://www.bankwithmutual.com/
 171009,optus bank,https://optus.bank/,https://xvault.bankoptus.com/login
 171010,crestmark - business banking,https://www.crestmark.com/,https://businessaccess.citibank.citigroup.com/
-171011,finbank oauth billable,https://auth.finbank.com/,https://www.hillsbank.com/hillsbankonline
 171012,alamerica bank,https://www.alamericabank.com/,https://allamerica.bank/online-banking-2/
 171013,citizens savings b&t co,https://www.bankcbn.com/,https://www.citizenssb.com/
 171014,first independence bank,https://www.firstindependence.com/,https://www.westernalliancebancorporation.com/first-independent-home
@@ -6649,7 +6634,6 @@ id,name,url,logo_url
 171343,armor bank - business banking,https://www.armor.bank/about-us/,https://www.bankorion.com/online-services.php
 171344,pike national bank,https://www.pnb-ms.net/,https://www.pnb-ms.net/
 171345,commerce state bank,https://www.commercestatebank.com/,https://www.commercestatebank.com/
-171347,finbank p australia,https://finbank-aus.dev.fini.city/ccbankimagemfa/login.jsp,https://www1.citibank.com.au
 171348,old second - corporate digital commercial banking,https://www.oldsecond.com/,https://www.icicibank.com/corporate/safe-online-CIBbanking.page
 171349,simply bank - business banking,https://www.mysimplybank.com/,https://www.pnc.com/en/small-business.html
 171351,greater pittsburgh police federal credit union,https://www.pittsburghpolicefcu.com/,https://www.greaterpittsburghfcu.org/
@@ -6873,11 +6857,7 @@ id,name,url,logo_url
 176075,gibsland bank & trust,https://gbt.bank/,https://www.gibslandbank.com/
 176076,my select bank - business banking,https://www.myselectbank.com/,https://cbc.comerica.com/
 176077,people�s community federal credit union,https://www.peoplescu.org/,https://www.comcfcu.com/
-176078,finbank offline,https://finbank.prod.fini.city/ccbankimagemfa/login.jsp,https://personal.firstbankonline.com/login
 176079,time bank- enterprise bank,https://www.timetobank.com/,https://www.americanenterprisebank.com/
-176080,account validation assistant,https://finbank.dev.fini.city/ccbankofx/login.jsp,http://fsd.co/payonline/index.shtml
-176081,finbank profiles j,https://finbank.prod.fini.city/finbankprofiles/home.jsp,https://www.vibeaccount.com/authenticate/login
-176082,finbank decertified,https://finbank.prod.fini.city/ccbankimagemfa/login.jsp,https://brokercheck.finra.org/firm/summary/40673
 176084,great southern bank (australia),https://www.greatsouthernbank.com.au/,https://www.greatsouthernbank.com/personal/credit-cards
 176085,bok financial - exchange,https://www.bokfinancial.com/,https://exchange.bokfinancial.com/cdp/login#/
 176086,bask bank,https://www.baskbank.com/,https://tasi.bank/
@@ -6893,7 +6873,6 @@ id,name,url,logo_url
 176096,american bank - business banking,https://www.americanbank.com/,https://cbc.comerica.com/
 176097,chickasaw community bank - business banking,https://www.ccb.bank/,https://www.ucbi.com/Business/Accounts/Online-and-Mobile-Banking
 176098,southern bank - businesspro banking,https://www.southernbank.com/,https://web3.secureinternetbank.com/EBC_EBC1151/Login/041208777
-176099,placeholder - pagescraper,https://finbank.prod.fini.city/ccbankimagemfa/login.jsp,www.machinerypartner.com
 176100,anstaff bank,https://www.anstaffbank.com/,https://www.alostarbank.com/
 176101,central bank - business online banking,https://www.mycentral.bank/,https://bob.sovereignbank.com/wcmfd/wcmpw/CustomerLogin
 176102,tee pak credit union,https://www.teepakcu.org/,https://www.teepakcu.org/

@@ -237,11 +237,12 @@ module.exports = [
     func: async function(req, res){
       let { id, partner, cache : useCache } = req.query;
       let { to_provider} = req.params;
-      let item = db.keyIndex[id];
+      let item = db.keyIndex.get(id);
       let weights;
       let cached = useCache !== 'false';
       if(!item){
         res.sendStatus(404);
+        return;
       }
       if(!to_provider || to_provider === 'auto'){
         let pref = await getPreference(partner);
@@ -280,6 +281,7 @@ module.exports = [
           weights,
           cached: weights ? cached : undefined
         })
+        return;
       }else{
         for(let p in item.fks){
           if(item.fks[p]){
