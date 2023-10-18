@@ -2,21 +2,11 @@
 Provide a universal institution search and multi-provider mapping service
 
 # Getting Started
+- `cd application`
 - `npm i`
 - `npm run start`
 - `http://localhost:8080/api/*`
 - Tested on node 17
-
-# Deployed to 
-- `https://search.sophtron-prod.com`
-- `https://search.sophtron.com`
-
-# Examples
-- `curl -X PUT http://localhost:8082/api/preference?partner=sophtron -d @data/preferences/sophtron.json -H 'Content-Type: application/json'`
-- `curl http://localhost:8080/api/preference?partner=sophtron`
-- `curl https://search.sophtron.com/api/preference?partner=sophtron`
-- `curl 'https://search.sophtron.com/api/resolve?id=4b2eca34-a729-438f-844c-ba8ce51047f9&partner=sophtron'`
-- `curl 'http://localhost:8080/api/resolve?id=4b2eca34-a729-438f-844c-ba8ce51047f9&partner=sophtron'`
 
 # Pre-Processing data
 - `ts-node dataProcessor/tools/mxData.js` this will call MX public api to get a full list of institutions to `raw_data/input/mx.csv` and `raw_data/input/mx-int.csv`
@@ -26,7 +16,14 @@ Provide a universal institution search and multi-provider mapping service
 - Optional: enable the commented code in [buildIndex.js](application/dataProcessor/tools/buildIndex.js) and use `node dataProcessor/tools/buildIndex.js` to generate `mainIndex.csv` for manual checking (testing)
 
 # Publishing the data
-- Go to [deployment](deployment/) and update the version info for different envs in `upload.sh` then use `./upload.sh -- data` to publish the data
+- Upload the built index`main.csv` and `index.txt` file to an http accessible url, with a `version.json` as metadata:
+```json
+  {
+    "env": "$version"
+  }
+```
+- Put the url to `DataBaseUrl` in `server/config.js` 
+- The server will load the index from the url at start up, then check the version.json with an interval. then update the index if there is a new version
 - If a new version is published for the specific env, it takes ~30s that the instance discovers it and update the index  
 
 # Add a new provider

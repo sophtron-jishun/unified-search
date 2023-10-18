@@ -1,6 +1,6 @@
 info:
-  description: Sophtron Universal institution list and search service (first draft)
-  title: Sophtron-Search
+  description: Universal institution list and search service (first draft)
+  title: Unified-Search
   version: 1.0.0
 openapi: 3.0.0
 components:
@@ -144,7 +144,7 @@ paths:
         Get a specific preference content
       responses:
         "200":
-          description: The signed VC document in Json format
+          description: 
           content:
             application/json:
               schema:

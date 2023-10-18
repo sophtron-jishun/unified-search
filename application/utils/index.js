@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
-const config = require('../config');
-const { logger } = require('sph-base');
+const config = require('../indexer/config');
+const { logger } = require('../infra/logger');
 
 async function processFileStream(inputStream, lineProcessor, aggregator){
   const rl = readline.createInterface({
