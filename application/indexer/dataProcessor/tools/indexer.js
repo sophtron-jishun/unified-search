@@ -1,4 +1,4 @@
-const {logger} = require('../../../infra/logger');
+const logger = require('../../../infra/logger');
 
 const MinTermSize = 2;
 
@@ -57,6 +57,7 @@ function buildIndex(mainInput){
   for(let i = 0; i < mainInput.length; i++){
     let entry = mainInput[i];
     let name = entry[1].toLowerCase();
+    let routing_numbers = entry[5].split(';').filter(n => n !== 'null');
     let skip = false;
     if(!entry[3]) { // no logo
       if(betterNameSuffixes.some(bns => nameIndex.get(name + bns)?.some(item => !!item?.[3]))){
@@ -79,7 +80,12 @@ function buildIndex(mainInput){
       continue;
     }
     let terms = extractTerms(name);
-
+    for(let r of routing_numbers){
+      terms[r] = {
+        order : 0,
+        wordLength: r.length
+      }
+    }
     for(let t in terms){
       if(!mainIndex.has(t)){
         mainIndex.set(t, [])

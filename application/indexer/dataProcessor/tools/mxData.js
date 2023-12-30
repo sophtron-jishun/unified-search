@@ -1,6 +1,6 @@
 const mxClient = require('../mxClient');
 const config = require('../../config');
-const utils = require('../../utils')
+const utils = require('../../../utils')
 
 function filter_logo(item){
   if(item.medium_logo_url !== 'https://content.moneydesktop.com/storage/MD_Assets/Ipad%20Logos/100x100/default_100x100.png'){
@@ -19,6 +19,6 @@ mxClient.batchLoadInstitutions('prod').then(all => {
   utils.arrayToCsvFile(all.filter(b => !b.name.toLowerCase().startsWith('finbank')), 'input/mx', header, row )
 });
 mxClient.batchLoadInstitutions('int').then(all => {
-  // console.log(all)
+  //console.log(all)
   utils.arrayToCsvFile(all.filter(b => b.code !== 'amex' && b.code !== 'citibank'), 'input/mx_int', header, row )
 });

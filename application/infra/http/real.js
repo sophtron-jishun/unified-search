@@ -1,8 +1,6 @@
 const crypto = require('crypto');
 const axios = require('axios');
 const logger = require('../logger');
-const capacitor = require('./capacitor')
-const config = require('../../config')
 
 function stream(url, data, target) {
   // logger.debug(`stream request: ${url}`);
@@ -75,10 +73,10 @@ function post(url, data, headers, returnFullResObject) {
 }
 
 module.exports = {
-  get: config.UseAxios ? get: capacitor.get,
-  wget: config.UseAxios ? wget: capacitor.wget,
-  post: config.UseAxios ? post: capacitor.post,
-  put: config.UseAxios ? put: capacitor.put,
-  del: config.UseAxios ? del: capacitor.del,
+  get,
+  wget,
+  post,
+  put,
+  del,
   stream
 };

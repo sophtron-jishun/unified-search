@@ -17,8 +17,8 @@ const config = {
 
   MxApiSecret:'',
   MxApiSecretProd:'',
-  MxApiClientId:'',
-  MxApiClientIdProd:'',
+  MxClientId:'',
+  MxClientIdProd:'',
 
   AkoyaClientId:'',
   AkoyaApiSecret: '', 

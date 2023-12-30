@@ -1,4 +1,4 @@
-const config = require('../../config');
+const config = require('../../server/config');
 const real = require('./real');
 const mocked = require('./mock');
 

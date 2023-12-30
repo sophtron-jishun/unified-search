@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const config = require('../indexer/config');
-const { logger } = require('../infra/logger');
+const logger = require('../infra/logger');
 
 async function processFileStream(inputStream, lineProcessor, aggregator){
   const rl = readline.createInterface({
@@ -67,7 +67,7 @@ async function processCsvFile(file_name){
 }
 
 function resolveDataFileName(file_name, extension, use_suffix){
-  return path.resolve(path.join(__dirname, '..', 'dataProcessor', 'raw_data', file_name + (use_suffix ? config.DataSuffix : '') + (extension || '')))
+  return path.resolve(path.join(__dirname, '..', 'indexer','dataProcessor', 'raw_data', file_name + (use_suffix ? config.DataSuffix : '') + (extension || '')))
 }
 
 function arrayToCsv(arr, streamWriter, header_str, line_str_func){

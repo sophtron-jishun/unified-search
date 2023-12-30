@@ -2,7 +2,7 @@
 const crypto = require('crypto');
 const axios = require('axios');
 const config = require('../../config');
-const { logger } = require('sph-base');
+const logger = require('../../../infra/logger');
 
 const userId = config.SophtronApiUserId;
 const accessKey = config.SophtronApiUserSecret;

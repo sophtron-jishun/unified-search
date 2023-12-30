@@ -1,18 +1,15 @@
 const { S3Client, ListObjectsCommand, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
-var {logger} = require('../../infra/logger');
+const logger = require('../../infra/logger');
 const { Upload } = require("@aws-sdk/lib-storage");
 
 module.exports = function(config){
-  const {bucket, accessKey, accessKeyId, region} = config;
-  if(!bucket || !accessKey || !accessKeyId || !region){
-    throw new Error(`Must provide "bucket accessKey accessKeyId region"`);
-  }
+  const {bucket, region} = config;
   const client = new S3Client({ 
-    region,
-    credentials: {
-      secretAccessKey: accessKey,
-      accessKeyId
-    },
+    region
+    // credentials: {
+    //   secretAccessKey: accessKey,
+    //   accessKeyId
+    // },
   });
   return {
     async List(prefix){

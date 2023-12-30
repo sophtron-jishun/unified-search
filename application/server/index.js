@@ -21,6 +21,10 @@ app.use(cors())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.get('/ping', function (req, res) {
+  res.sendStatus(200);
+});
+
 api.mapApi(app);
 preference.mapApi(app);
 

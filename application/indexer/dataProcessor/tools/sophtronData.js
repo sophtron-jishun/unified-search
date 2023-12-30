@@ -1,5 +1,5 @@
 const sophtronClient = require('../sophtronClient');
-const utils = require('../../utils')
+const utils = require('../../../utils')
 const config = require('../../config');
 
 const blackList = [
@@ -26,5 +26,13 @@ function filterInstitution(item){
 }
 
 sophtronClient.batchGetInstitutions().then(all => {
-  utils.arrayToCsvFile(all.filter(filterInstitution), 'input/sophtron','id,name,url,logo_url', (item)=>`${item.InstitutionID},${item.InstitutionName.trim().replaceAll(',', config.CsvEscape)},${item.URL?.trim() || ''},${item.Logo?.trim() ||''}` )
+  utils.arrayToCsvFile(
+    all.filter(filterInstitution), 
+    'input/sophtron',
+    'id,name,url,logo_url,routing_number', 
+    (item) => {
+      let routing_number = `${item.InstitutionDetail.RoutingNumber}/${item.InstitutionDetail.MultipleRoutingNumbers}`.trim();
+      let arr = routing_number.split('/').filter((r,i,a) => a.indexOf(r) === i)
+      return `${item.InstitutionID},${item.InstitutionName.trim().replaceAll(',', config.CsvEscape)},${item.URL?.trim() || ''},${item.Logo?.trim() ||''},${arr.join(';')}`
+    })
 });

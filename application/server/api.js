@@ -88,7 +88,7 @@ async function loadData(){
     logger.info(`loaded index: ${ret.searchIndex.size}, ${elapsedSeconds()}s`);
   }
 
-  let providers = arr[0].pop().replace('foreignKeys(', '').replace(')', '').split(';')
+  let providers = arr[0][4].replace('foreignKeys(', '').replace(')', '').split(';')
   logger.info(`Building key index, ${elapsedSeconds()}s, providers: ${providers.join(';')}`);
   ret.keyIndex = arr.reduce((obj, row, index) => {
     if(index === 0){

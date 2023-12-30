@@ -1,13 +1,14 @@
-const utils = require('../../utils');
+const utils = require('../../../utils');
 const config = require('../../config');
 const fs = require('fs')
-const {logger} = require('sph-base');
+const logger = require('../../../infra/logger');
 const mainIndexSchema = [
   'id',
   'name',
   'url',
   'logo',
-  'foreignKeys'
+  'foreignKeys',
+  'routing_number'
 ]
 const providers = {
   sophtron: utils.resolveDataFileName('input/sophtron', '.csv', true),
@@ -23,6 +24,7 @@ const defaultSourceDataSchema = {
   name: 1,
   url: 2,
   logo: 3,
+  routing_number: 4,
 }
 const mx_sophtron_schema = {
   name: 1,
@@ -105,13 +107,16 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
       };
       db.current.mainIndex.set(uid, entry)
     }
+    let routing_number = s[sourceSchema['routing_number']];
     if(!entry.name || entry.id === sourceId){
       // entry may get updated, 
       entry.name = s[sourceSchema['name']];
       entry.url = s[sourceSchema['url']];
       entry.logo = s[sourceSchema['logo']] || entry.logo;
+      entry.routing_number = routing_number || entry.routing_number;
     }
     entry.logo = entry.logo || s[sourceSchema['logo']];
+    entry.routing_number = entry.routing_number || routing_number;
 
     // ensure foreign index so that this can be found later 
     if(newKey){
@@ -199,10 +204,10 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   var fwriter = fs.createWriteStream(file_name, {
     flags: 'w' // a: append, w: write
   })
-  fwriter.write(`uid,name,url,logo,foreignKeys(${Object.keys(providers).join(';')})`)
+  fwriter.write(`uid,name,url,logo,foreignKeys(${Object.keys(providers).join(';')}),routing_number`)
   for(let [key, item] of db.current.mainIndex){
     if(item.name){
-      fwriter.write(`\n${key},${item.name.replaceAll(',', config.csvEscape)},${item.url},${item.logo||''},${Object.keys(providers).map(p => `${item.foreignKeys[p] || ''}`).join(';')}`)
+      fwriter.write(`\n${key},${item.name.replaceAll(',', config.csvEscape)},${item.url},${item.logo||''},${Object.keys(providers).map(p => `${item.foreignKeys[p] || ''}`).join(';')},${item.routing_number||''}`)
     }else{
       logger.error(`Invalid item`, item)
     }

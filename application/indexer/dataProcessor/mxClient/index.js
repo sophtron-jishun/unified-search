@@ -1,9 +1,9 @@
 const {InstitutionResponse, Configuration, CredentialRequest, MxPlatformApiFactory} = require('./sdk');
 const config = require('../../config');
-const { logger } = require('sph-base');
+const logger = require('../../../infra/logger');
 
 const mxConfigInt = {
-  username: config.MxApiClientId,
+  username: config.MxClientId,
   password: config.MxApiSecret,
   demoUserId: config.MxDemoUserId,
   demoMemberId: config.MxDemoMemberId,
@@ -11,7 +11,7 @@ const mxConfigInt = {
 }
 
 const mxConfigProd = {
-  username: config.MxApiClientIdProd,
+  username: config.MxClientIdProd,
   password: config.MxApiSecretProd,
   basePath: 'https://api.mx.com',
 }
@@ -24,7 +24,9 @@ const mx = {
   }
 };
 async function batchLoadInstitutions(env){
-  const apiClient = MxPlatformApiFactory(new Configuration(env === 'prod' ? {...mxConfigProd, ...mx}: {...mxConfigInt, ...mx}));
+  const conf = new Configuration(env === 'prod' ? {...mxConfigProd, ...mx}: {...mxConfigInt, ...mx});
+  console.log(conf)
+  const apiClient = MxPlatformApiFactory(conf);
   logger.info(`loading mx institutions`);
   // logger.info(mx);
   let totalPages = 141;

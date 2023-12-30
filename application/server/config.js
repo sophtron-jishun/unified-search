@@ -14,13 +14,11 @@ const config = {
   RedisServer: 'redis://localhost:6379',
   RedisCacheTimeSeconds: 600,
   SophtronAnalyticsServiceEndpoint: 'http://localhost:8081/api/',
+  AuthServiceEndpoint: 'https://ucp-login.sophtron-prod.com/api',
 
-  DataBaseUrl: '',
-
+  DataBaseUrl: 'https://ucp-prod-shared-data.s3.us-west-2.amazonaws.com/search/',
+  S3Bucket: 'ucp-prod-data',
   AwsRegion: 'us-west-2',
-  S3Bucket: '',
-  DataBucketAccessKey: '',
-  DataBucketAccessKeyId: '',
 };;
 
 const arr = Object.keys(config);
