@@ -17,7 +17,7 @@ const config = {
   AuthServiceEndpoint: 'https://ucp-login.sophtron-prod.com/api',
 
   DataBaseUrl: 'https://ucp-prod-shared-data.s3.us-west-2.amazonaws.com/search/',
-  S3Bucket: 'ucp-prod-data',
+  S3Bucket: 'dev.universalconnectproject.org',
   AwsRegion: 'us-west-2',
 };;
 

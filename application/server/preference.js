@@ -8,7 +8,7 @@ const s3Client = s3({
   bucket: config.S3Bucket
 })
 
-const s3Prefix = `${config.Env}/search/`
+const s3Prefix = `search/${config.Env}/`
 let defaultPref;
 
 async function auth(req){

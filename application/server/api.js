@@ -15,6 +15,9 @@ function weightByPerformance(metrics, pref){
   let weights = metrics.providers;
   for( let [provider, metric] of Object.entries(metrics.providers)){
     weights[provider].weight = 0;
+    if(!metric.success_rate){
+      continue;
+    }
     let value = metric.success_rate[weights_conf.success_rate.use_field];
     for( let conf of weights_conf.success_rate.buckets){
       if(conf.from <= value && conf.to > value){
@@ -183,6 +186,13 @@ async function searchInstitutions(name){
   }
 }
 
+async function auth(req){
+  if(req.headers.authorization){
+    const user = await http.get(`${config.AuthServiceEndpoint}/auth`, {Authorization: req.headers.authorization})
+    return user;
+  }
+}
+
 module.exports = {
   mapApi: function(app){
     app.get('/api/providers', function(req, res){
@@ -196,11 +206,19 @@ module.exports = {
         res.send(ret);
         return;
       }else{
+        if(!auth(req)){
+          res.sendStatus(401);
+          return;
+        }
         let pref = await getPreference(partner);
         res.send({institutions: pref.defaultBanks})
       }
     })
     app.get('/api/institution/resolve/:to_provider?', async function(req, res){
+      if(!auth(req)){
+        res.sendStatus(401);
+        return;
+      }
       let { id, partner, cache : useCache } = req.query;
       let { to_provider} = req.params;
       let item = db.keyIndex.get(id);
@@ -232,8 +250,8 @@ module.exports = {
             await cache.set(key, metrics)
           }
           let ret = weightByPerformance(metrics, pref)
-          to_provider = ret.provider
-          weights = ret.weights
+          to_provider = ret?.provider
+          weights = ret?.weights
         }
       }
       

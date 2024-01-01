@@ -165,7 +165,7 @@ paths:
         
           example:
           
-            curl -X PUT https://search.sophtron-prod.com/api/preference?partner=sophtron -d @data/preferences/sophtron.json -H 'Content-Type: application/json'
+            curl -X PUT https://ucp-search.sophtron-prod.com/api/preference?partner=sophtron -d @data/preferences/sophtron.json -H 'Content-Type: application/json'
       responses:
         "200": 
           description: Ok
