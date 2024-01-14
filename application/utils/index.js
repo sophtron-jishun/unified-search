@@ -62,12 +62,11 @@ async function processCsvFile(file_name){
     const fileStream = fs.createReadStream(file_name);
     return processCsv(fileStream)
   }
-  logger.info(`File not exist: ${file_name}`)
-  return []
+  throw new Error(`File not exists ${file_name}`)
 }
 
 function resolveDataFileName(file_name, extension, use_suffix){
-  return path.resolve(path.join(__dirname, '..', 'indexer','dataProcessor', 'raw_data', file_name + (use_suffix ? config.DataSuffix : '') + (extension || '')))
+  return path.resolve(path.join(__dirname, '..', 'indexer','dataProcessor', 'data', file_name + (use_suffix ? config.DataSuffix : '') + (extension || '')))
 }
 
 function arrayToCsv(arr, streamWriter, header_str, line_str_func){

@@ -9,14 +9,14 @@ const config = {
   Env: 'pre', //mocked
   Component: 'unified-search',
   Version: '',
-  MaxSearchResults: 20,
+  MaxSearchResults: 50,
   DataLoadIntervalSeconds: 30,
   RedisServer: 'redis://localhost:6379',
   RedisCacheTimeSeconds: 600,
   SophtronAnalyticsServiceEndpoint: 'https://ucp-analytics.sophtron-prod.com/api/',
   AuthServiceEndpoint: 'https://ucp-login.sophtron-prod.com/api',
 
-  DataBaseUrl: 'https://ucp-prod-shared-data.s3.us-west-2.amazonaws.com/search/',
+  DataBaseUrl: 'http://static.universalconnectproject.org.s3.us-west-2.amazonaws.com/search/',
   S3Bucket: 'dev.universalconnectproject.org',
   AwsRegion: 'us-west-2',
 };;

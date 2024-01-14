@@ -2,6 +2,7 @@ const utils = require('../../../utils');
 const config = require('../../config');
 const fs = require('fs')
 const logger = require('../../../infra/logger');
+const { match } = require('assert');
 const mainIndexSchema = [
   'id',
   'name',
@@ -11,13 +12,13 @@ const mainIndexSchema = [
   'routing_number'
 ]
 const providers = {
-  sophtron: utils.resolveDataFileName('input/sophtron', '.csv', true),
-  mx: utils.resolveDataFileName('input/mx', '.csv', true),
-  akoya: utils.resolveDataFileName('input/akoya', '.csv', true),
-  finicity: utils.resolveDataFileName('input/finicity', '.csv', true),
-  mx_int: utils.resolveDataFileName('input/mx_int', '.csv', true),
+  sophtron: utils.resolveDataFileName('interim/sophtron', '.csv', true),
+  mx: utils.resolveDataFileName('interim/mx', '.csv', true),
+  akoya: utils.resolveDataFileName('interim/akoya', '.csv', true),
+  finicity: utils.resolveDataFileName('interim/finicity', '.csv', true),
+  mx_int: utils.resolveDataFileName('interim/mx_int', '.csv', true),
   akoya_sandbox: utils.resolveDataFileName('input/akoya_sandbox', '.csv', true),
-  finicity_sandbox: utils.resolveDataFileName('input/finicity_sandbox', '.csv', true),
+  finicity_sandbox: utils.resolveDataFileName('interim/finicity_sandbox', '.csv', true),
 }
 const defaultSourceDataSchema = {
   id: 0,
@@ -44,7 +45,7 @@ const finicity_sophtron_schema = {
 const file_names = {
   input: {
     mx_sophtron: utils.resolveDataFileName('input/20230309_mx_institutions_sophtron_g374.csv'),
-    akoya_sophtron: utils.resolveDataFileName('input/akoya_sophtron.csv'),
+    akoya_sophtron: utils.resolveDataFileName('interim/akoya_sophtron_20230604.csv'),
     finicity_sophtron: utils.resolveDataFileName('input/finicity_sophtron_7_6_2023.csv'),
     ...providers
   },
@@ -66,71 +67,90 @@ for(let p in providers){
   db.current.foreignIndexes.set(p, new Map());
 }
 
-function logDb(db){
-  //logger.info(`mapping: ${db.mapping.length}, sophtron: ${db.sophtron.length}, mx: ${db.mx.length}`)
+function logDb(){
+  //console.log(db)
 }
-
+function populateEntryProperties(entry, s, sourceSchema, sourceId){
+  let routing_number = s[sourceSchema['routing_number']];
+  if(!entry.name || entry.id === sourceId){
+    // entry may get updated, 
+    entry.name = s[sourceSchema['name']];
+    entry.url = s[sourceSchema['url']] || entry.url;
+    entry.logo = s[sourceSchema['logo']] || entry.logo;
+    entry.routing_number = routing_number || entry.routing_number;
+  }
+  entry.logo = entry.logo || s[sourceSchema['logo']];
+  entry.routing_number = entry.routing_number || routing_number;
+}
 function processProvider(source, mapping, source_provider, mapped_provider, sourceSchema, mappingSchema){
   let start = new Date();
   logger.info(`Processing provider data: ${source_provider}, ${source.length}, to ${mapped_provider}`)
   for(let i = 1; i < source.length; i++){
     let s = source[i];
     let sourceId = s[sourceSchema['id']];
+    //let log = s[sourceSchema['name']].toLowerCase() === 'pnc bank' && (mapped_provider === 'mx' || source_provider === 'mx')
     
+    let log = sourceId === '13793b9f-2ebf-4f31-815e-7dfe38e906c4' && mapped_provider === 'akoya'
     // find the mapping if exists
     let mappedId = mapped_provider ? mapping.find(item => 
         item[mappingSchema[source_provider]] === sourceId)?.[mappingSchema[mapped_provider]] : null ;
-    let entries = db.current.foreignIndexes.get(source_provider)?.get(sourceId);
-    let entry;
-    if(!entries && mappedId){
-      entries = db.current.foreignIndexes.get(mapped_provider)?.get(mappedId);
-      entry = entries?.[0];
+        // if(log){
+        //   console.log(mappedId, mapping)
+        // }
+    if(!db.current.foreignIndexes.get(source_provider).has(sourceId)){
+      db.current.foreignIndexes.get(source_provider).set(sourceId, []);
     }
-    if(mappedId && !entry){
-      //foreignKey index is not unique, locate the exact mapping and leave other entries alone, 
-      // other entries may become invalid (mapped provider removed that entry), use another loop at the end to clean up
-      entry = entries?.find(en => !en.foreignKeys[mapped_provider] || en.foreignKeys[mapped_provider] === mappedId)
-    }else{
-      // if there isn't mapped provider at all, it should be not recorded or only one entry recorded
-      entry = entry || entries?.[0];
+    if(mappedId && !db.current.foreignIndexes.get(mapped_provider).has(mappedId)){
+      db.current.foreignIndexes.get(mapped_provider).set(mappedId, []);
     }
-    let newKey = !entry?.foreignKeys?.[mapped_provider || 'dummy']
-    if(!entry){
-      // take the current provider used id as the universal Id, first come first serve
-      // if no other providers to map, make the universal id specific
-      let uid = mapped_provider ? sourceId: `${source_provider}_${sourceId}`;
-      entry = {
-        id: uid,
-        foreignKeys: {
-          [source_provider]: sourceId
-        }
-      };
-      db.current.mainIndex.set(uid, entry)
-    }
-    let routing_number = s[sourceSchema['routing_number']];
-    if(!entry.name || entry.id === sourceId){
-      // entry may get updated, 
-      entry.name = s[sourceSchema['name']];
-      entry.url = s[sourceSchema['url']];
-      entry.logo = s[sourceSchema['logo']] || entry.logo;
-      entry.routing_number = routing_number || entry.routing_number;
-    }
-    entry.logo = entry.logo || s[sourceSchema['logo']];
-    entry.routing_number = entry.routing_number || routing_number;
-
-    // ensure foreign index so that this can be found later 
-    if(newKey){
-      if(!db.current.foreignIndexes.get(source_provider).has(sourceId)){
-        db.current.foreignIndexes.get(source_provider).set(sourceId, []);
-      }
-      db.current.foreignIndexes.get(source_provider).get(sourceId).push(entry);
+    let entries = [
+      ...db.current.foreignIndexes.get(source_provider)?.get(sourceId),
+      ...(mappedId ? db.current.foreignIndexes.get(mapped_provider)?.get(mappedId) : []),
+    ];
+    let matched = false;
+    for(let en of db.current.foreignIndexes.get(source_provider)?.get(sourceId) || []){
+      populateEntryProperties(en, s, sourceSchema, sourceId);
       if(mappedId){
-        entry.foreignKeys[mapped_provider] = mappedId;
-        if(!db.current.foreignIndexes.get(mapped_provider).has(mappedId)){
-          db.current.foreignIndexes.get(mapped_provider).set(mappedId, []);
+        if(!en.foreignKeys[mapped_provider]){
+          en.foreignKeys[mapped_provider] = mappedId;
+          db.current.foreignIndexes.get(mapped_provider).get(mappedId).push(en);
+          matched = true;
+        }else if(en.foreignKeys[mapped_provider] === mappedId){
+          matched = true;
         }
-        db.current.foreignIndexes.get(mapped_provider).get(mappedId).push(entry);
       }
+    }
+    if(mappedId){
+      for(let en of db.current.foreignIndexes.get(mapped_provider)?.get(mappedId) || []){
+        if(!en.foreignKeys[source_provider]){
+          populateEntryProperties(en, s, sourceSchema, sourceId);
+          en.foreignKeys[source_provider] = sourceId;
+          db.current.foreignIndexes.get(source_provider).get(sourceId).push(en);
+          matched = true;
+        }else if(en.foreignKeys[source_provider] === sourceId){
+          matched = true;
+        }
+      }
+    }
+    if(matched){
+      continue;
+    }
+    // take the current provider used id as the universal Id, first come first serve
+    // if no other providers to map, make the universal id specific
+    let uid = mapped_provider ? sourceId: `${source_provider}_${sourceId}`;
+    let entry = {
+      id: uid,
+      foreignKeys: {
+        [source_provider]: sourceId,
+        [mapped_provider]: mappedId,
+      }
+    };
+    populateEntryProperties(entry, s, sourceSchema, sourceId);
+    db.current.mainIndex.set(uid, entry)
+    // ensure foreign index so that this can be found later 
+    db.current.foreignIndexes.get(source_provider).get(sourceId).push(entry);
+    if(mappedId){
+      db.current.foreignIndexes.get(mapped_provider).get(mappedId).push(entry);
     }
   }
   logger.info(`Processed provider data: ${source_provider} to ${mapped_provider}, took ${(new Date() - start)/1000} seconds`)
@@ -156,7 +176,7 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   for(let map of db.input.finicity_sophtron){
     map[finicity_sophtron_schema.sophtron] = map[finicity_sophtron_schema.sophtron].toLowerCase()
   }
-  logDb(db.input);
+  logDb();
   // Load existing mainIndex from file for deltas, may speed things up? 
   // let main = await utils.processCsvFile(file_names.output.main);
   // db.current.mainIndex = main.reduce((sum, item) => {
@@ -185,7 +205,7 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   //   return sum;
   // }, new Map())
   logger.info(`${elapsedSeconds()}s: Output:`)
-  logDb(db.output);
+  logDb();
   processProvider(db.input.mx_int, [], 'mx_int', '', defaultSourceDataSchema, {})
   processProvider(db.input.akoya_sandbox, [], 'akoya_sandbox', '', defaultSourceDataSchema, {})
   processProvider(db.input.finicity_sandbox, [], 'finicity_sandbox', '', defaultSourceDataSchema, {})
@@ -193,10 +213,10 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   processProvider(db.input.mx, db.input.mx_sophtron, 'mx', 'sophtron', defaultSourceDataSchema, mx_sophtron_schema)
   processProvider(db.input.sophtron, db.input.mx_sophtron, 'sophtron', 'mx', defaultSourceDataSchema,mx_sophtron_schema)
 
-  processProvider(db.input.sophtron, db.input.akoya_sophtron, 'sophtron', 'akoya', defaultSourceDataSchema, akoya_sophtron_schema)
+  //processProvider(db.input.sophtron, db.input.akoya_sophtron, 'sophtron', 'akoya', defaultSourceDataSchema, akoya_sophtron_schema)
   processProvider(db.input.akoya, db.input.akoya_sophtron, 'akoya', 'sophtron', defaultSourceDataSchema, akoya_sophtron_schema)
 
-  processProvider(db.input.sophtron, db.input.finicity_sophtron, 'sophtron', 'finicity', defaultSourceDataSchema, finicity_sophtron_schema)
+  //processProvider(db.input.sophtron, db.input.finicity_sophtron, 'sophtron', 'finicity', defaultSourceDataSchema, finicity_sophtron_schema)
   processProvider(db.input.finicity, db.input.finicity_sophtron, 'finicity', 'sophtron', defaultSourceDataSchema, finicity_sophtron_schema)
   
   const file_name = utils.resolveDataFileName('output/main', '.csv', false);
@@ -207,10 +227,10 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   fwriter.write(`uid,name,url,logo,foreignKeys(${Object.keys(providers).join(';')}),routing_number`)
   for(let [key, item] of db.current.mainIndex){
     if(item.name){
-      fwriter.write(`\n${key},${item.name.replaceAll(',', config.csvEscape)},${item.url},${item.logo||''},${Object.keys(providers).map(p => `${item.foreignKeys[p] || ''}`).join(';')},${item.routing_number||''}`)
+      fwriter.write(`\n${key},${item.name.replaceAll(',', config.csvEscape)},${item.url||''},${item.logo||''},${Object.keys(providers).map(p => `${item.foreignKeys[p] || ''}`).join(';')},${item.routing_number||''}`)
     }else{
       logger.error(`Invalid item`, item)
     }
   }
-  logger.info(`${elapsedSeconds()}s: Done`)
+  logger.info(`${elapsedSeconds()}s: Done, ${db.current.mainIndex.size} items`)
 })()

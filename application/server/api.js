@@ -124,15 +124,23 @@ async function loadData(){
 loadData();
 setInterval(loadData, config.DataLoadIntervalSeconds * 1000)
 
-async function searchInstitutions(name){
+async function searchInstitutions(name, providers){
   if(!db.data){
     await loadData();
+  }
+  if(providers.filter(p=>p).length === 0){
+    providers = undefined;
   }
   let queries = decodeURIComponent(name || '')
     .toLowerCase().split(' ')
     .filter(s => s.trim().length > 1)
     .map(s => s.trim());
   let findings = queries.map((q, i) => (db.searchIndex.get(q) || []).filter(t => t.order >= i)).filter(a => a.length > 0);
+
+  let urlIndex = new Set();
+  let domainIndex = new Set();
+  let nameIndex = {};
+
   let matches = findings.length == 1 ? (findings[0] || []).map(item => item.row) : findings.reduce((arr, cur, index) => {
     for(let item of cur){
       if(arr.length > config.MaxSearchResults){
@@ -142,35 +150,37 @@ async function searchInstitutions(name){
         return arr
       }
       if(findings.every((numbers, i) => i === index || numbers.some(t => t.row === item.row ))){
-        arr.push(item.row)
+        let id = db.data[item.row];
+        let entry = db.keyIndex.get(id);
+        //filter to remove dup or non-logo entries from matched result
+        // console.log(entry)
+        if(entry){
+          if(!providers || providers.some(p => entry.fks[p])){
+            arr.push(item.row)
+            // if(!urlIndex.has(entry.url)){
+            //   let host = url.parse(entry.url)?.hostname
+            //   if(entry.logo_url){
+            //     domainIndex.add(host);
+            //     nameIndex[entry.name.toLowerCase()] = true;
+            //   }else if(domainIndex.has(host)){
+            //     //return arr;
+            //   }else if(Object.keys(nameIndex).some(i => entry.name.toLowerCase().startsWith(i) && entry.name.length > i.length)){
+            //     // return arr;
+            //   }
+            //   urlIndex.add(entry.url);
+            //   arr.push(item.row)
+            // }
+          }
+        }
       }
     }
     return arr;
   }, [])
-  let urlIndex = new Set();
-  let domainIndex = new Set();
-  let nameIndex = {};
   return {
     // queries,
     // findings: `${findings.length}, ${findings.map(a => a.length).join(',')}`,
     // matches,
-    institutions: matches.filter(m => {
-      let id = db.data[m];
-      let entry = db.keyIndex.get(id);
-      if(!urlIndex.has(m.url)){
-        let host = url.parse(entry.url)?.hostname
-        if(entry.logo_url){
-          domainIndex.add(host);
-          nameIndex[entry.name.toLowerCase()] = true;
-        }else if(domainIndex.has(host)){
-          return false;
-        }else if(Object.keys(nameIndex).some(i => entry.name.toLowerCase().startsWith(i))){
-          return false;
-        }
-        return urlIndex.add(entry.url)
-      }
-      return false
-    }).map(m => {
+    institutions: matches.map(m => {
       //let rowNumber = m.substring(1);
       let id = db.data[m];
       let entry = db.keyIndex.get(id);
@@ -200,9 +210,10 @@ module.exports = {
     }),
     app.get('/api/institutions/:provider?', async function(req, res){
       // let { provider } = req.params;
-      let { query, partner } = req.query;
+      let { query, partner, providers } = req.query;
       if(query){
-        let ret = await searchInstitutions(query);
+        let ps = decodeURIComponent(providers || '').split(';');
+        let ret = await searchInstitutions(query, ps);
         res.send(ret);
         return;
       }else{

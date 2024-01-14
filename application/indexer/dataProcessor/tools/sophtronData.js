@@ -28,7 +28,7 @@ function filterInstitution(item){
 sophtronClient.batchGetInstitutions().then(all => {
   utils.arrayToCsvFile(
     all.filter(filterInstitution), 
-    'input/sophtron',
+    'interim/sophtron',
     'id,name,url,logo_url,routing_number', 
     (item) => {
       let routing_number = `${item.InstitutionDetail.RoutingNumber}/${item.InstitutionDetail.MultipleRoutingNumbers}`.trim();

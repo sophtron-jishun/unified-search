@@ -9,8 +9,8 @@ function contentToWords(content)
     return []
   }
   let words = content.split(' ').filter(w => w.trim()).slice(0, 10)
-  //return words.map(w => w.trim().replace(/[^a-zA-Z0-9\&\'\(\)]/g, ''));
-  return words.map(w => w.trim().replace(/[^a-zA-Z0-9\&\']/g, ''));
+  return words.map(w => w.trim().replace(/[^a-zA-Z0-9\&\'\(\)]/g, ''));
+  //return words.map(w => w.trim().replace(/[^a-zA-Z0-9\&\']/g, ''));
 }
 
 function extractTerms(content)
@@ -57,6 +57,9 @@ function buildIndex(mainInput){
   for(let i = 0; i < mainInput.length; i++){
     let entry = mainInput[i];
     let name = entry[1].toLowerCase();
+    if(name === 'name'){
+      continue;
+    }
     let routing_numbers = entry[5].split(';').filter(n => n !== 'null');
     let skip = false;
     if(!entry[3]) { // no logo
