@@ -66,7 +66,7 @@ async function processCsvFile(file_name){
 }
 
 function resolveDataFileName(file_name, extension, use_suffix){
-  return path.resolve(path.join(__dirname, '..', 'indexer','dataProcessor', 'data', file_name + (use_suffix ? config.DataSuffix : '') + (extension || '')))
+  return path.resolve(path.join(config.institutionDataPath, file_name + (use_suffix ? config.DataSuffix : '') + (extension || '')))
 }
 
 function arrayToCsv(arr, streamWriter, header_str, line_str_func){

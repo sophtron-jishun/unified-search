@@ -1,3 +1,5 @@
+const path = require('path');
+
 const processEnv = {};
 const envs = {...process.env, ...process.client_envs};
 Object.keys(envs).forEach((k) => {
@@ -10,6 +12,8 @@ const config = {
   Version: '',
   DataSuffix: '_20230604',
   CsvEscape: '^',
+
+  institutionDataPath: path.resolve(path.join(__dirname, '../../../ucp-infrastructure/helm/unified-search/institutionList')),
 
   // for data processors
   SophtronApiUserId: '',
