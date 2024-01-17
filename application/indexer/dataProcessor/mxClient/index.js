@@ -43,7 +43,8 @@ async function batchLoadInstitutions(env){
           all.push(...institutions)
         }
       }).catch(err => {
-        logger.error(`Error getting mx institutions, page: ${i}`, err)
+        logger.error(`Error getting mx institutions, page: ${i}`, err?.response?.data)
+        throw err;
       })
     )
   }

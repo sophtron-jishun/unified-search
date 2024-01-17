@@ -16,20 +16,24 @@ const rl = readline.createInterface({
 });
 
 async function parseAkoyaInstitutions(){
-  const whitelistFile = utils.resolveDataFileName('raw/akoya_sophtron_whitelist', '.csv', true)
-  const blacklistFile = utils.resolveDataFileName('raw/akoya_sophtron_blacklist', '.csv', true)
-  const sophtronFile = utils.resolveDataFileName('input/sophtron_20230604.csv')
-  const akoyaFile = utils.resolveDataFileName('raw/akoya_20240108.csv')
+  const mxMappingFile = utils.resolveDataFileName('input/akoya_mx_whitelist.csv')
+  const whitelistFile = utils.resolveDataFileName('input/akoya_sophtron_whitelist', '.csv', true)
+  const blacklistFile = utils.resolveDataFileName('input/akoya_sophtron_blacklist', '.csv', true)
+  const sophtronFile = utils.resolveDataFileName('interim/sophtron_20230604.csv')
+  const akoyaFile = utils.resolveDataFileName('input/akoya_20240108.csv')
   const sophtron = await utils.processCsvFile(sophtronFile);
   const akoya = await utils.processCsvFile(akoyaFile);
   const whitelist = await utils.processCsvFile(whitelistFile);
   const blacklist = await utils.processCsvFile(blacklistFile);
+  const mxMapping = await utils.processCsvFile(mxMappingFile);
   sophtron.shift()
   akoya.shift()
   whitelist.shift()
   blacklist.shift()
+  mxMapping.shift()
   utils.arrayToCsvFile(akoya, 'interim/akoya','id,name,url,logo_url', (item)=>`${item[1]},${item[0]},,` )
   const map = [];
+  const mxMap = [];
   let exact = 0;
   let unmatched = [];
   for(const line of akoya){
@@ -45,7 +49,17 @@ async function parseAkoyaInstitutions(){
       })
       continue;
     }
-    console.log(`matching line ${line}`)
+    let mxWhite = mxMapping.find(item => item[0] === name);
+    if(mxWhite){
+      mxMap.push({
+        name,
+        akoya: id,
+        mx: mxWhite[2],
+        comment: mxWhite[1]
+      })
+      continue;
+    }
+    // console.log(`matching line ${line}`)
     const diss = [];
     let black = blacklist.filter(item => item[0] === name);
     for(const s of sophtron){
@@ -119,9 +133,11 @@ async function parseAkoyaInstitutions(){
       unmatched.push(line);
     }
   }
-  console.log(`Mapped ${map.length} of ${akoya.length} akoya banks, ${exact} exact matched`)
+  console.log(`Mapped to sophtron: ${map.length} of ${akoya.length} akoya banks, ${exact} exact matched`)
+  console.log(`Mapped to mx: ${mxMap.length} of ${akoya.length} akoya banks`)
   console.log(`Unmapped ${unmatched.length} of ${akoya.length} akoya banks`)
   utils.arrayToCsvFile(map, 'interim/akoya_sophtron','name,akoya,sophtron,comment', (item)=>`${item.name},${item.akoya},${item.sophtron},${item.comment}` )
+  utils.arrayToCsvFile(mxMap, 'interim/akoya_mx','name,akoya,mx,comment', (item)=>`${item.name},${item.akoya},${item.mx},${item.comment}` )
 }
 
 parseAkoyaInstitutions().then(() => {

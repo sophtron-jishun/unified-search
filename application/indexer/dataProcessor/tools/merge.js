@@ -37,6 +37,11 @@ const akoya_sophtron_schema = {
   akoya: 1,
   sophtron: 2,
 }
+const akoya_mx_schema = {
+  name: 0,
+  akoya: 1,
+  mx: 2,
+}
 const finicity_sophtron_schema = {
   name: 2,
   finicity: 0,
@@ -46,6 +51,7 @@ const file_names = {
   input: {
     mx_sophtron: utils.resolveDataFileName('input/20230309_mx_institutions_sophtron_g374.csv'),
     akoya_sophtron: utils.resolveDataFileName('interim/akoya_sophtron_20230604.csv'),
+    akoya_mx: utils.resolveDataFileName('interim/akoya_mx_20230604.csv'),
     finicity_sophtron: utils.resolveDataFileName('input/finicity_sophtron_7_6_2023.csv'),
     ...providers
   },
@@ -90,13 +96,14 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
     let sourceId = s[sourceSchema['id']];
     //let log = s[sourceSchema['name']].toLowerCase() === 'pnc bank' && (mapped_provider === 'mx' || source_provider === 'mx')
     
-    let log = sourceId === '13793b9f-2ebf-4f31-815e-7dfe38e906c4' && mapped_provider === 'akoya'
     // find the mapping if exists
     let mappedId = mapped_provider ? mapping.find(item => 
         item[mappingSchema[source_provider]] === sourceId)?.[mappingSchema[mapped_provider]] : null ;
-        // if(log){
-        //   console.log(mappedId, mapping)
-        // }
+  
+    // let log = sourceId === 'jackhenry:chromefcu'
+    // if(log){
+    //   console.log(mappedId, mapping)
+    // }
     if(!db.current.foreignIndexes.get(source_provider).has(sourceId)){
       db.current.foreignIndexes.get(source_provider).set(sourceId, []);
     }
@@ -164,14 +171,7 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   for(let [key, file_name] of Object.entries(file_names.input)){
     db.input[key] = await utils.processCsvFile(file_name);
   }
-  logger.info(`${elapsedSeconds()}s: Loaded input. pre-processing mx data`)
-  for(let map of db.input.mx_sophtron){
-    // mx mapping used internal institution guid that's not accessible from public api, update the mapping first
-    let public = db.input.mx.find(item => item[defaultSourceDataSchema.name] === map[mx_sophtron_schema.name])
-    if(public){
-      map[mx_sophtron_schema.mx] = public[defaultSourceDataSchema.id]
-    }
-  }
+
   logger.info(`${elapsedSeconds()}s: Pre-processing finicity data`)
   for(let map of db.input.finicity_sophtron){
     map[finicity_sophtron_schema.sophtron] = map[finicity_sophtron_schema.sophtron].toLowerCase()
@@ -211,12 +211,10 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   processProvider(db.input.finicity_sandbox, [], 'finicity_sandbox', '', defaultSourceDataSchema, {})
 
   processProvider(db.input.mx, db.input.mx_sophtron, 'mx', 'sophtron', defaultSourceDataSchema, mx_sophtron_schema)
+  processProvider(db.input.mx, db.input.akoya_mx, 'mx', 'akoya', defaultSourceDataSchema, akoya_mx_schema)
+  
   processProvider(db.input.sophtron, db.input.mx_sophtron, 'sophtron', 'mx', defaultSourceDataSchema,mx_sophtron_schema)
-
-  //processProvider(db.input.sophtron, db.input.akoya_sophtron, 'sophtron', 'akoya', defaultSourceDataSchema, akoya_sophtron_schema)
   processProvider(db.input.akoya, db.input.akoya_sophtron, 'akoya', 'sophtron', defaultSourceDataSchema, akoya_sophtron_schema)
-
-  //processProvider(db.input.sophtron, db.input.finicity_sophtron, 'sophtron', 'finicity', defaultSourceDataSchema, finicity_sophtron_schema)
   processProvider(db.input.finicity, db.input.finicity_sophtron, 'finicity', 'sophtron', defaultSourceDataSchema, finicity_sophtron_schema)
   
   const file_name = utils.resolveDataFileName('output/main', '.csv', false);
