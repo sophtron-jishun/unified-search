@@ -1,6 +1,6 @@
-const logger = require('../../../infra/logger')
+const logger = require('../../infra/logger')
 const {buildIndex,serializeIndex, deserializeIndexRow} = require('./indexer');
-const utils = require('../../../utils');
+const utils = require('../../utils');
 const fs = require('fs')
 
 

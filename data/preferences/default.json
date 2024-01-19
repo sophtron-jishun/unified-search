@@ -3,7 +3,6 @@
 
   "providerMapping" : {
     "chase": { "name": "Chase Bank", "provider": "sophtron" },
-    "citibank": { "name": "Citibank", "provider": "mx" },
     "wells_fargo": { "name": "Wells Fargo", "provider": "sophtron" }
   },
 

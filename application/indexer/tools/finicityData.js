@@ -1,6 +1,6 @@
 const finicityClient = require('../finicityClient');
 const config = require('../../config');
-const utils = require('../../../utils')
+const utils = require('../../utils')
 
 function filterInstitution(item){
   return item[2].toLowerCase().indexOf('finbank') >= 0 ||

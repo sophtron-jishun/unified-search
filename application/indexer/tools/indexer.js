@@ -1,4 +1,4 @@
-const logger = require('../../../infra/logger');
+const logger = require('../../infra/logger');
 
 const MinTermSize = 2;
 

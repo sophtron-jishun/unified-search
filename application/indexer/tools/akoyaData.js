@@ -1,5 +1,5 @@
 const config = require('../../config');
-const utils = require('../../../utils')
+const utils = require('../../utils')
 const {distance, closest} = require('../../../utils/fastest-levenshtein');
 const readline = require('node:readline/promises');
 const match = require('./fiNameMatch')

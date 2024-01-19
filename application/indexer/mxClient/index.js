@@ -1,6 +1,6 @@
 const {InstitutionResponse, Configuration, CredentialRequest, MxPlatformApiFactory} = require('./sdk');
-const config = require('../../config');
-const logger = require('../../../infra/logger');
+const config = require('../config');
+const logger = require('../../infra/logger');
 
 const mxConfigInt = {
   username: config.MxClientId,

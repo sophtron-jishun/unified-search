@@ -1,5 +1,5 @@
 const sophtronClient = require('../sophtronClient');
-const utils = require('../../../utils')
+const utils = require('../../utils')
 const config = require('../../config');
 
 const blackList = [

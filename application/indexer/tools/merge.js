@@ -1,7 +1,7 @@
-const utils = require('../../../utils');
-const config = require('../../config');
+const utils = require('../../utils');
+const config = require('../config');
 const fs = require('fs')
-const logger = require('../../../infra/logger');
+const logger = require('../../infra/logger');
 const { match } = require('assert');
 const mainIndexSchema = [
   'id',
@@ -28,9 +28,9 @@ const defaultSourceDataSchema = {
   routing_number: 4,
 }
 const mx_sophtron_schema = {
-  name: 1,
-  mx: 2,
-  sophtron: 3,
+  name: 0,
+  mx: 1,
+  sophtron: 2,
 }
 const akoya_sophtron_schema = {
   name: 0,
@@ -49,7 +49,7 @@ const finicity_sophtron_schema = {
 }
 const file_names = {
   input: {
-    mx_sophtron: utils.resolveDataFileName('input/20230309_mx_institutions_sophtron_g374.csv'),
+    mx_sophtron: utils.resolveDataFileName('interim/mx_sophtron_20230604.csv'),
     akoya_sophtron: utils.resolveDataFileName('interim/akoya_sophtron_20230604.csv'),
     akoya_mx: utils.resolveDataFileName('interim/akoya_mx_20230604.csv'),
     finicity_sophtron: utils.resolveDataFileName('input/finicity_sophtron_7_6_2023.csv'),
@@ -100,20 +100,19 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
     let mappedId = mapped_provider ? mapping.find(item => 
         item[mappingSchema[source_provider]] === sourceId)?.[mappingSchema[mapped_provider]] : null ;
   
-    // let log = sourceId === 'jackhenry:chromefcu'
+    // let log = sourceId === 'citibank'
     // if(log){
-    //   console.log(mappedId, mapping)
+    //   console.log(mappedId)
+    //   console.log(mappingSchema[source_provider], mappingSchema[mapped_provider])
+    //   console.log(mapping.find(item => item[1] === 'citibank'))
     // }
+
     if(!db.current.foreignIndexes.get(source_provider).has(sourceId)){
       db.current.foreignIndexes.get(source_provider).set(sourceId, []);
     }
     if(mappedId && !db.current.foreignIndexes.get(mapped_provider).has(mappedId)){
       db.current.foreignIndexes.get(mapped_provider).set(mappedId, []);
     }
-    let entries = [
-      ...db.current.foreignIndexes.get(source_provider)?.get(sourceId),
-      ...(mappedId ? db.current.foreignIndexes.get(mapped_provider)?.get(mappedId) : []),
-    ];
     let matched = false;
     for(let en of db.current.foreignIndexes.get(source_provider)?.get(sourceId) || []){
       populateEntryProperties(en, s, sourceSchema, sourceId);

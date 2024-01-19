@@ -2,7 +2,7 @@ const logger = require('../infra/logger')
 const config = require('./config')
 const utils = require('../utils')
 const axios = require('axios')
-const tools = require('../indexer/dataProcessor/tools')
+const tools = require('../indexer/tools')
 const url = require('url');
 const { getPreference } = require('./preference')
 
