@@ -13,8 +13,8 @@ const config = {
   DataLoadIntervalSeconds: 30,
   RedisServer: 'redis://localhost:6379',
   RedisCacheTimeSeconds: 600,
-  SophtronAnalyticsServiceEndpoint: 'https://ucp-analytics.sophtron-prod.com/api/',
-  AuthServiceEndpoint: 'https://ucp-login.sophtron-prod.com/api',
+  SophtronAnalyticsServiceEndpoint: 'https://analytics.universalconnectproject.org/api/',
+  AuthServiceEndpoint: 'https://login.universalconnectproject.org/api',
 
   DataBaseUrl: 'http://static.universalconnectproject.org.s3.us-west-2.amazonaws.com/search/',
   S3Bucket: 'dev.universalconnectproject.org',
