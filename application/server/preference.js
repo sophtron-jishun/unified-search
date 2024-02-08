@@ -12,7 +12,10 @@ const s3Prefix = `search/${config.Env}/`
 let defaultPref;
 
 async function auth(req){
-  const user = await http.get(`${config.AuthServiceEndpoint}/api/auth`, {Authorization: req.headers.Authorization})
+  const user = await http.get(`${config.AuthServiceEndpoint}auth`, {Authorization: req.headers.authorization})
+    .catch(err => {
+      logger.trace(`Auth failed with header value: ${req.headers.authorization}`, err);
+    })
   return user;
 }
 
@@ -35,13 +38,13 @@ module.exports = {
   mapApi(app){
     app.get('/api/preference', async function(req, res){
       let { partner } = req.query;
-      let ret = await this.getPreference(partner, true)
+      let ret = await getPreference(partner, true)
       res.send(ret)
     })
     app.put('/api/preference', async function(req, res){
       const user = await auth(req);
-      if(user){
-        await s3Client.PutObject(`${s3Prefix}preferences/${user.name}/default.json`, JSON.stringify(req.body))
+      if(user?.name){
+        await s3Client.PutObject(`${s3Prefix}preferences/${user.name.toLowerCase()}/default.json`, JSON.stringify(req.body))
         res.sendStatus(200)
         return;
       }
