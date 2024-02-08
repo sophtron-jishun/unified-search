@@ -4,7 +4,7 @@ const utils = require('../utils')
 const axios = require('axios')
 const tools = require('../indexer/tools')
 const url = require('url');
-const { getPreference } = require('./preference')
+const { getPreference, auth } = require('./preference')
 
 let db = {
 }
@@ -196,13 +196,6 @@ async function searchInstitutions(name, providers){
   }
 }
 
-async function auth(req){
-  if(req.headers.authorization){
-    const user = await http.get(`${config.AuthServiceEndpoint}/auth`, {Authorization: req.headers.authorization})
-    return user;
-  }
-}
-
 module.exports = {
   mapApi: function(app){
     app.get('/api/providers', function(req, res){
@@ -210,27 +203,30 @@ module.exports = {
     }),
     app.get('/api/institutions/:provider?', async function(req, res){
       // let { provider } = req.params;
-      let { query, partner, providers } = req.query;
+      let { query, providers } = req.query;
       if(query){
         let ps = decodeURIComponent(providers || '').split(';');
         let ret = await searchInstitutions(query, ps);
         res.send(ret);
         return;
       }else{
-        if(!auth(req)){
+        const user = await auth(req);
+        if(!user?.name){
           res.sendStatus(401);
           return;
         }
-        let pref = await getPreference(partner);
+        let pref = await getPreference(user.name.toLowerCase());
         res.send({institutions: pref.defaultBanks})
       }
     })
     app.get('/api/institution/resolve/:to_provider?', async function(req, res){
-      if(!auth(req)){
+      const user = await auth(req);
+      const partner = user?.name
+      if(!partner){
         res.sendStatus(401);
         return;
       }
-      let { id, partner, cache : useCache } = req.query;
+      let { id, cache : useCache } = req.query;
       let { to_provider} = req.params;
       let item = db.keyIndex.get(id);
       let weights;

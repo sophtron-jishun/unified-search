@@ -35,11 +35,16 @@ async function getPreference(partner, noDefault){
 
 module.exports = {
   getPreference,
+  auth,
   mapApi(app){
     app.get('/api/preference', async function(req, res){
-      let { partner } = req.query;
-      let ret = await getPreference(partner, true)
-      res.send(ret)
+      const user = await auth(req);
+      if(user?.name){
+        let ret = await getPreference(user.name.toLowerCase(), true)
+        res.send(ret)
+        return;
+      }
+      res.sendStatus(401)
     })
     app.put('/api/preference', async function(req, res){
       const user = await auth(req);
