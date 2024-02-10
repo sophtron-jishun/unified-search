@@ -1,4 +1,5 @@
 const path = require('path');
+require('dotenv').config({override: true});
 
 const processEnv = {};
 const envs = {...process.env, ...process.client_envs};
@@ -10,7 +11,7 @@ const config = {
   Env: 'pre', //mocked
   Component: 'unified-search',
   Version: '',
-  DataSuffix: '_20230604',
+  DataSuffix: '_20240210',
   CsvEscape: '^',
 
   institutionDataPath: path.resolve(path.join(__dirname, '../../../ucp-infrastructure/helm/unified-search/institutionList')),

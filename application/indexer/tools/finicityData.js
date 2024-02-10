@@ -1,5 +1,5 @@
 const finicityClient = require('../finicityClient');
-const config = require('../../config');
+const config = require('../config');
 const utils = require('../../utils')
 
 function filterInstitution(item){

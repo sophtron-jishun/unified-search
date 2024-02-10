@@ -1,6 +1,6 @@
-const config = require('../../config');
+const config = require('../config');
 const utils = require('../../utils')
-const {distance, closest} = require('../../../utils/fastest-levenshtein');
+const {distance, closest} = require('../../utils/fastest-levenshtein');
 const readline = require('node:readline/promises');
 const match = require('./fiNameMatch')
 
@@ -17,9 +17,9 @@ const rl = readline.createInterface({
 
 async function parseAkoyaInstitutions(){
   const mxMappingFile = utils.resolveDataFileName('input/akoya_mx_whitelist.csv')
-  const whitelistFile = utils.resolveDataFileName('input/akoya_sophtron_whitelist', '.csv', true)
-  const blacklistFile = utils.resolveDataFileName('input/akoya_sophtron_blacklist', '.csv', true)
-  const sophtronFile = utils.resolveDataFileName('interim/sophtron_20230604.csv')
+  const whitelistFile = utils.resolveDataFileName('input/akoya_sophtron_whitelist.csv')
+  const blacklistFile = utils.resolveDataFileName('input/akoya_sophtron_blacklist.csv')
+  const sophtronFile = utils.resolveDataFileName('interim/sophtron_20240210.csv')
   const akoyaFile = utils.resolveDataFileName('input/akoya_20240108.csv')
   const sophtron = await utils.processCsvFile(sophtronFile);
   const akoya = await utils.processCsvFile(akoyaFile);
@@ -36,6 +36,7 @@ async function parseAkoyaInstitutions(){
   const mxMap = [];
   let exact = 0;
   let unmatched = [];
+  logger.info(`processing mappings, be patient`)
   for(const line of akoya){
     const id = line[1];
     const name = line[0];

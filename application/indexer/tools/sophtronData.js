@@ -1,6 +1,6 @@
 const sophtronClient = require('../sophtronClient');
 const utils = require('../../utils')
-const config = require('../../config');
+const config = require('../config');
 
 const blackList = [
   '480d0c7f-3541-4587-acd6-5992788258bd',

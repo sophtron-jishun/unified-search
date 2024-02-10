@@ -1,5 +1,6 @@
+
 const mxClient = require('../mxClient');
-const config = require('../../config');
+const config = require('../config');
 const utils = require('../../utils')
 
 function filter_logo(item){

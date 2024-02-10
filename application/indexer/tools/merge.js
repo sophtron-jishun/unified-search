@@ -17,7 +17,7 @@ const providers = {
   akoya: utils.resolveDataFileName('interim/akoya', '.csv', true),
   finicity: utils.resolveDataFileName('interim/finicity', '.csv', true),
   mx_int: utils.resolveDataFileName('interim/mx_int', '.csv', true),
-  akoya_sandbox: utils.resolveDataFileName('input/akoya_sandbox', '.csv', true),
+  akoya_sandbox: utils.resolveDataFileName('input/akoya_sandbox_20230604.csv'),
   finicity_sandbox: utils.resolveDataFileName('interim/finicity_sandbox', '.csv', true),
 }
 const defaultSourceDataSchema = {
@@ -49,9 +49,9 @@ const finicity_sophtron_schema = {
 }
 const file_names = {
   input: {
-    mx_sophtron: utils.resolveDataFileName('interim/mx_sophtron_20230604.csv'),
-    akoya_sophtron: utils.resolveDataFileName('interim/akoya_sophtron_20230604.csv'),
-    akoya_mx: utils.resolveDataFileName('interim/akoya_mx_20230604.csv'),
+    mx_sophtron: utils.resolveDataFileName('interim/mx_sophtron_20240210.csv'),
+    akoya_sophtron: utils.resolveDataFileName('interim/akoya_sophtron_20240210.csv'),
+    akoya_mx: utils.resolveDataFileName('interim/akoya_mx_20240210.csv'),
     finicity_sophtron: utils.resolveDataFileName('input/finicity_sophtron_7_6_2023.csv'),
     ...providers
   },

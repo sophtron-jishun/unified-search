@@ -1,7 +1,7 @@
 
 const axios = require('axios');
 const config = require('../config');
-const { logger } = require('sph-base');
+const logger = require('../../infra/logger');
 
 const finicitySandbox = {
   basePath: 'https://api.finicity.com',
