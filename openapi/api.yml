@@ -3,7 +3,18 @@ info:
   title: Unified-Search
   version: 1.0.0
 openapi: 3.0.0
+servers:
+  - url: https://search.universalconnectproject.org/
 components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'Get keys from [UCP Login Service](https://login.universalconnectproject.org)'
+    tokenAuth:
+      type: http
+      scheme: token
+      description: 'retrieve token from POST https://login.universalconnectproject.org/api/secretexchange'
   schemas:
     Institution:
       title: Institution Object
@@ -50,6 +61,8 @@ components:
 paths:
   /api/institutions:
     get:
+      security:
+        - tokenAuth: []
       parameters:
         - name: query
           in: query
@@ -64,7 +77,8 @@ paths:
           schema:
             type: string
       description: |2-
-        Get a list of institutions that matches the search term query
+        Get a list of institutions that matches the search term query, 
+        if query is not provided, default list of instituions in preference will be returned, where auth is required
       responses:
         "200":
           description: list of institution
@@ -88,6 +102,8 @@ paths:
 
   /api/institution/resolve/{to_provider}:
     get:
+      security:
+        - tokenAuth: []
       parameters:
         - name: to_provider
           in: path
@@ -133,6 +149,8 @@ paths:
           description: Unexpected error
   /api/preference:
     get:
+      security:
+        - basicAuth: []
       parameters:
         - name: partner
           in: query
@@ -152,6 +170,8 @@ paths:
         default:
           description: Empty object
     put:
+      security:
+        - basicAuth: []
       parameters:
         - name: partner
           in: query
