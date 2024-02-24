@@ -242,7 +242,7 @@ module.exports = {
         }else{
           let name = item.name.toLowerCase().replace(/[ \.,()]/g, '_').replace(/_+/g, '_');
           let getFn = () => {
-            const url = `${config.AnalyticsServiceEndpoint}${name}/metrics/job/dummystart/dummyend`;
+            const url = `${config.AnalyticsServiceEndpoint}${name}/metrics/uvcs/dummystart/dummyend`;
             logger.trace(`Getting analytics data from ${url}`)
             return axios.get(url).then(res => {
               logger.debug(`Received analytics data from`, res.data)
