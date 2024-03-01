@@ -36,7 +36,7 @@ components:
         provider:
           type: string
           description: Name of the provider for processing the institution
-
+    
     Preference:
       title: Client preference Object
       description: An object that stores the searching preference
@@ -46,18 +46,59 @@ components:
           type: string
           description: The default provider of the search results
         providerMapping:
-          type: array
+          type: object
           description: A mapping dictionary key-ed by institution.id and value by an institution object (where only provider field is required here)
+          # properties:
+          #   type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Institution'
+        hiddenBanks:
+          type: array
+          description: list of institutions to hide
           items:
-            type: object
-            additionalProperties:
-              $ref: '#/components/schemas/Institution'
+            $ref: '#/components/schemas/Institution'
+
         defaultBanks:
           type: array
           description: a default list of institutions when not searching for particular ones, aka Favorate List of Institutions
           items:
             $ref: '#/components/schemas/Institution'
 
+        weights_conf:
+          type: object
+          description: Config the weights points for calculating institution-provider metrics in order to route by performance data
+          properties:
+            success_rate: 
+              $ref: '#/components/schemas/weightConf'
+            time_cost: 
+              $ref: '#/components/schemas/weightConf'
+    weightConf:
+      type: object
+      description: the data weight config to calculate the specific type of metrics data, this will contribute to part of the final score
+      properties:
+        use_field: 
+          type: string
+          description: the name of the field from the metrics data object to get value with
+        ratio:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: the ratio of the final score that this metrics contributes to 
+        buckets:
+          type: array
+          description: the data range buckets for matching the data value and getting the weight
+          items:
+            type: object
+            properties:
+              weight:
+                type: number
+                description: if data value falls into this bucket, the metrics will result this weight and contribute to the final score
+              from:
+                type: number
+                description: the minimal value which data may match this bucket
+              to:
+                type: number
+                description: the maximum value which data may match this bucket
 paths:
   /api/institutions:
     get:
@@ -189,4 +230,3 @@ paths:
       responses:
         "200": 
           description: Ok
-        
