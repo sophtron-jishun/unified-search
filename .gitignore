@@ -1,6 +1,5 @@
 data/
 pnpm-lock.yaml
-package-lock.json
 .env
 # Logs
 logs
