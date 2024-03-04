@@ -19,6 +19,8 @@ function filterInstitution(item){
     && !name.endsWith('dummy')
     && name !== 'corporation'
     && name !== 'neobanxdev'
+    && name !== 'bank of americal'
+    && name !== 'AAA bank of america'
     && name.indexOf('(test)') === -1
     && name.indexOf('test ') === -1
     && item?.URL !== 'testurl.com'

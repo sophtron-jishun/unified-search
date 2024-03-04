@@ -143,15 +143,15 @@ async function searchInstitutions(name, providers){
 
   let matches = findings.length == 1 ? (findings[0] || []).map(item => item.row) : findings.reduce((arr, cur, index) => {
     for(let item of cur){
-      if(arr.length > config.MaxSearchResults){
+      let id = db.data[item.row];
+      let entry = db.keyIndex.get(id);
+      if(arr.length > config.MaxSearchResults && !entry.name === name){
         return arr;
       }
       if(arr.indexOf(item.row) > -1){
         return arr
       }
       if(findings.every((numbers, i) => i === index || numbers.some(t => t.row === item.row ))){
-        let id = db.data[item.row];
-        let entry = db.keyIndex.get(id);
         //filter to remove dup or non-logo entries from matched result
         // console.log(entry)
         if(entry){
