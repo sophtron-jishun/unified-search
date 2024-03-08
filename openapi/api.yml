@@ -221,12 +221,15 @@ paths:
           required: false
           schema:
             type: string
+      requestBody:
+        description: Json content of a preference object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Preference'
       description: |2-
         Put the preference json content as the request body and store it referenced by `partner`
-        
-          example:
-          
-            curl -X PUT https://ucp-search.sophtron-prod.com/api/preference?partner=sophtron -d @data/preferences/sophtron.json -H 'Content-Type: application/json'
       responses:
         "200": 
           description: Ok
