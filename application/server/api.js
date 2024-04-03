@@ -4,7 +4,7 @@ const utils = require('../utils')
 const axios = require('axios')
 const tools = require('../indexer/tools')
 const url = require('url');
-const { getPreference, auth } = require('./preference')
+const { getPreference } = require('./preference')
 
 let db = {
 }
@@ -210,22 +210,15 @@ module.exports = {
         res.send(ret);
         return;
       }else{
-        const user = await auth(req);
-        if(!user?.name){
+        let pref = await getPreference(req);
+        if(!pref){
           res.sendStatus(401);
           return;
         }
-        let pref = await getPreference(user.name.toLowerCase());
         res.send({institutions: pref.defaultBanks})
       }
     })
     app.get('/api/institution/resolve/:to_provider?', async function(req, res){
-      const user = await auth(req);
-      const partner = user?.name
-      if(!partner){
-        res.sendStatus(401);
-        return;
-      }
       let { id, cache : useCache } = req.query;
       let { to_provider} = req.params;
       let item = db.keyIndex.get(id);
@@ -236,7 +229,11 @@ module.exports = {
         return;
       }
       if(!to_provider || to_provider === 'auto'){
-        let pref = await getPreference(partner);
+        let pref = await getPreference(req);
+        if(!pref){
+          res.sendStatus(401);
+          return;
+        }
         if(!to_provider){
           to_provider = pref.providerMapping[id]?.provider || pref.defaultProvider;
         }else{

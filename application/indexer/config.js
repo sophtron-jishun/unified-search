@@ -12,7 +12,7 @@ const config = {
   Component: 'unified-search',
   Version: '',
   DataSuffix: '_20240210',
-  CsvEscape: '^',
+  CsvEscape: '^', // the csv parsing script didn't implement the full csv spec, use this to escap ',' and ignore other cases, should make things slightly faster 
 
   institutionDataPath: path.resolve(path.join(__dirname, '../../../ucp-infrastructure/helm/unified-search/institutionList')),
 

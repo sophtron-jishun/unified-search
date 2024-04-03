@@ -1,9 +1,5 @@
-{
+module.exports = {
   "defaultProvider": "sophtron",
-
-  "providerMapping" : {
-  
-  },
 
   "weights_conf": {
     "success_rate": {

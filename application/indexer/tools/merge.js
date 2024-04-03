@@ -73,9 +73,6 @@ for(let p in providers){
   db.current.foreignIndexes.set(p, new Map());
 }
 
-function logDb(){
-  //console.log(db)
-}
 function populateEntryProperties(entry, s, sourceSchema, sourceId){
   let routing_number = s[sourceSchema['routing_number']];
   if(!entry.name || entry.id === sourceId){
@@ -177,6 +174,7 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   }
   logDb();
   // Load existing mainIndex from file for deltas, may speed things up? 
+  // un finished code
   // let main = await utils.processCsvFile(file_names.output.main);
   // db.current.mainIndex = main.reduce((sum, item) => {
   //   let entry = {};
@@ -204,16 +202,21 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   //   return sum;
   // }, new Map())
   logger.info(`${elapsedSeconds()}s: Output:`)
-  logDb();
+
+  // add the test list first, as they won't have any mappings to others 
+  // leaving the mapped_provider as '' will ensure the universal id generated provider specific, e.g. have a prefix as <provider>_
   processProvider(db.input.mx_int, [], 'mx_int', '', defaultSourceDataSchema, {})
   processProvider(db.input.akoya_sandbox, [], 'akoya_sandbox', '', defaultSourceDataSchema, {})
   processProvider(db.input.finicity_sandbox, [], 'finicity_sandbox', '', defaultSourceDataSchema, {})
 
+  //Process mx first, this will take mx institution id as the universal id generated, so long as mx mapping data is availabel
   processProvider(db.input.mx, db.input.mx_sophtron, 'mx', 'sophtron', defaultSourceDataSchema, mx_sophtron_schema)
   processProvider(db.input.mx, db.input.akoya_mx, 'mx', 'akoya', defaultSourceDataSchema, akoya_mx_schema)
   
+  //because the data may have many-to-many cases, process sophtron with double checking mx mapping
   processProvider(db.input.sophtron, db.input.mx_sophtron, 'sophtron', 'mx', defaultSourceDataSchema,mx_sophtron_schema)
   processProvider(db.input.akoya, db.input.akoya_sophtron, 'akoya', 'sophtron', defaultSourceDataSchema, akoya_sophtron_schema)
+  //Currently we have a finicity mapping to sophtron data but not to mx, hence this must happen after all mx and sophtron data are processed
   processProvider(db.input.finicity, db.input.finicity_sophtron, 'finicity', 'sophtron', defaultSourceDataSchema, finicity_sophtron_schema)
   
   const file_name = utils.resolveDataFileName('output/main', '.csv', false);
@@ -224,7 +227,7 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   fwriter.write(`uid,name,url,logo,foreignKeys(${Object.keys(providers).join(';')}),routing_number`)
   for(let [key, item] of db.current.mainIndex){
     if(item.name){
-      fwriter.write(`\n${key},${item.name.replaceAll(',', config.csvEscape)},${item.url||''},${item.logo||''},${Object.keys(providers).map(p => `${item.foreignKeys[p] || ''}`).join(';')},${item.routing_number||''}`)
+      fwriter.write(`\n${key},${item.name.replaceAll(',', config.CsvEscape)},${item.url||''},${item.logo||''},${Object.keys(providers).map(p => `${item.foreignKeys[p] || ''}`).join(';')},${item.routing_number||''}`)
     }else{
       logger.error(`Invalid item`, item)
     }

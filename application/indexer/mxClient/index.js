@@ -25,7 +25,7 @@ const mx = {
 };
 async function batchLoadInstitutions(env){
   const conf = new Configuration(env === 'prod' ? {...mxConfigProd, ...mx}: {...mxConfigInt, ...mx});
-  console.log(conf)
+  // console.log(conf)
   const apiClient = MxPlatformApiFactory(conf);
   logger.info(`loading mx institutions`);
   // logger.info(mx);
