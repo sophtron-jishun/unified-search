@@ -128,54 +128,60 @@ async function searchInstitutions(name, providers){
   if(!db.data){
     await loadData();
   }
-  if(providers.filter(p=>p).length === 0){
-    providers = undefined;
-  }
   let queries = decodeURIComponent(name || '')
     .toLowerCase().split(' ')
     .filter(s => s.trim().length > 1)
     .map(s => s.trim());
   let findings = queries.map((q, i) => (db.searchIndex.get(q) || []).filter(t => t.order >= i)).filter(a => a.length > 0);
-
+  
   let urlIndex = new Set();
   let domainIndex = new Set();
   let nameIndex = {};
 
-  let matches = findings.length == 1 ? (findings[0] || []).map(item => item.row) : findings.reduce((arr, cur, index) => {
-    for(let item of cur){
+  let matches = findings.length == 1 
+    ? (findings[0] || []).filter(item => {
+      if(!providers){
+        return true
+      }
       let id = db.data[item.row];
       let entry = db.keyIndex.get(id);
-      if(arr.length > config.MaxSearchResults && !entry.name === name){
-        return arr;
-      }
-      if(arr.indexOf(item.row) > -1){
-        return arr
-      }
-      if(findings.every((numbers, i) => i === index || numbers.some(t => t.row === item.row ))){
-        //filter to remove dup or non-logo entries from matched result
-        // console.log(entry)
-        if(entry){
-          if(!providers || providers.some(p => entry.fks[p])){
-            arr.push(item.row)
-            // if(!urlIndex.has(entry.url)){
-            //   let host = url.parse(entry.url)?.hostname
-            //   if(entry.logo_url){
-            //     domainIndex.add(host);
-            //     nameIndex[entry.name.toLowerCase()] = true;
-            //   }else if(domainIndex.has(host)){
-            //     //return arr;
-            //   }else if(Object.keys(nameIndex).some(i => entry.name.toLowerCase().startsWith(i) && entry.name.length > i.length)){
-            //     // return arr;
-            //   }
-            //   urlIndex.add(entry.url);
-            //   arr.push(item.row)
-            // }
+      return providers.some(p => entry.fks[p])
+    }).map(item => item.row) 
+    : findings.reduce((arr, cur, index) => {
+      for(let item of cur){
+        let id = db.data[item.row];
+        let entry = db.keyIndex.get(id);
+        if(arr.length > config.MaxSearchResults && !entry.name === name){
+          return arr;
+        }
+        if(arr.indexOf(item.row) > -1){
+          return arr
+        }
+        if(findings.every((numbers, i) => i === index || numbers.some(t => t.row === item.row ))){
+          //filter to remove dup or non-logo entries from matched result
+          // console.log(entry)
+          if(entry){
+            if(!providers || providers.some(p => entry.fks[p])){
+              arr.push(item.row)
+              // if(!urlIndex.has(entry.url)){
+              //   let host = url.parse(entry.url)?.hostname
+              //   if(entry.logo_url){
+              //     domainIndex.add(host);
+              //     nameIndex[entry.name.toLowerCase()] = true;
+              //   }else if(domainIndex.has(host)){
+              //     //return arr;
+              //   }else if(Object.keys(nameIndex).some(i => entry.name.toLowerCase().startsWith(i) && entry.name.length > i.length)){
+              //     // return arr;
+              //   }
+              //   urlIndex.add(entry.url);
+              //   arr.push(item.row)
+              // }
+            }
           }
         }
       }
-    }
-    return arr;
-  }, [])
+      return arr;
+    }, [])
   return {
     // queries,
     // findings: `${findings.length}, ${findings.map(a => a.length).join(',')}`,
@@ -204,8 +210,11 @@ module.exports = {
     app.get('/api/institutions/:provider?', async function(req, res){
       // let { provider } = req.params;
       let { query, providers } = req.query;
+      let ps = decodeURIComponent(providers || '').split(';');
+      if(ps.filter(p=>p).length === 0){
+        ps = undefined;
+      }
       if(query){
-        let ps = decodeURIComponent(providers || '').split(';');
         let ret = await searchInstitutions(query, ps);
         res.send(ret);
         return;
@@ -215,7 +224,16 @@ module.exports = {
           res.sendStatus(401);
           return;
         }
-        res.send({institutions: pref.defaultBanks})
+        res.send({institutions: pref.defaultBanks.filter(item => {
+          let entry = db.keyIndex.get(item.id);
+          if(!entry){
+            return false;
+          }
+          if(!ps){
+            return true;
+          }
+          return ps.some(p => entry.fks[p])
+        })})
       }
     })
     app.get('/api/institution/resolve/:to_provider?', async function(req, res){
