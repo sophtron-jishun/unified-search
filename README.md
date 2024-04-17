@@ -4,8 +4,8 @@ Provide a universal institution search and multi-provider mapping service
 # Getting Started
 - `cd application`
 - `npm i`
-- `npm run start`
-- `http://localhost:8080/api/*`
+- `npm run dev`
+- `http://localhost:8082/api/*`
 - Tested on node 17
 
 By default the service has only one dependency: 
