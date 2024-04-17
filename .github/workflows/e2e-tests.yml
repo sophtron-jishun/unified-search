@@ -13,10 +13,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "lts/*"
-      - run: npm ci
+      - run: cd ./application && npm ci
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          start: npm run dev
+          start: cd ./application && npm run dev
           wait-on: "http://localhost:8082"
