@@ -172,7 +172,7 @@ function processProvider(source, mapping, source_provider, mapped_provider, sour
   for(let map of db.input.finicity_sophtron){
     map[finicity_sophtron_schema.sophtron] = map[finicity_sophtron_schema.sophtron].toLowerCase()
   }
-  logDb();
+  
   // Load existing mainIndex from file for deltas, may speed things up? 
   // un finished code
   // let main = await utils.processCsvFile(file_names.output.main);
