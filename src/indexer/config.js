@@ -6,41 +6,48 @@ const envs = {...process.env, ...process.client_envs};
 Object.keys(envs).forEach((k) => {
   processEnv[k.toUpperCase()] = envs[k];
 });
-const config = {
-  LogLevel: 'debug',
-  Env: 'pre', //mocked
-  Component: 'unified-search',
-  Version: '',
-  DataSuffix: '_20240210',
-  CsvEscape: '^', // the csv parsing script didn't implement the full csv spec, use this to escap ',' and ignore other cases, should make things slightly faster 
 
+const nonSensitiveSharedConfig = {
+  Component: 'unified-search',
+  CsvEscape: '^', // the csv parsing script didn't implement the full csv spec, use this to escap ',' and ignore other cases, should make things slightly faster 
+  DataSuffix: '_20240210',
   institutionDataPath: path.resolve(path.join(__dirname, '../../../ucp-infrastructure/helm/unified-search/institutionList')),
+};
+
+const keysToPullFromEnv = [
+  "LogLevel",
+  "Env",
+  "Version",
 
   // for data processors
-  SophtronApiUserId: '',
-  SophtronApiUserSecret: '',
+  "SophtronApiUserId",
+  "SophtronApiUserSecret",
 
-  MxApiSecret:'',
-  MxApiSecretProd:'',
-  MxClientId:'',
-  MxClientIdProd:'',
+  "MxApiSecret",
+  "MxApiSecretProd",
+  "MxClientId",
+  "MxClientIdProd",
 
-  AkoyaClientId:'',
-  AkoyaApiSecret: '', 
-  AkoyaClientIdProd: '',
-  AkoyaApiSecretProd: '',
+  "AkoyaClientId",
+  'AkoyaApiSecret', 
+  "AkoyaClientIdProd",
+  "AkoyaApiSecretProd",
 
-  FinicityPartnerId: '',
-  FinicityAppKey: '',
-  FinicitySecret: '',
-  FinicityPartnerIdProd: '',
-  FinicityAppKeyProd: '',
-  FinicitySecretProd: '',
-}
+  "FinicityPartnerId",
+  "FinicityAppKey",
+  "FinicitySecret",
+  "FinicityPartnerIdProd",
+  "FinicityAppKeyProd",
+  "FinicitySecretProd",
+];
 
-const arr = Object.keys(config);
-for (let i = 0; i < arr.length; i++) {
-  const key = arr[i];
-  config[key] = processEnv[key.toUpperCase()] || config[key];
-}
+const config = keysToPullFromEnv.reduce((acc, envKey) => {
+  return {
+    ...acc,
+    [envKey]: processEnv[envKey.toUpperCase()]
+  }
+}, {
+  ...nonSensitiveSharedConfig
+})
+
 module.exports = config;
