@@ -118,4 +118,4 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-application/cypress/screenshots
+cypress/screenshots
