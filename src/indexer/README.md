@@ -4,7 +4,7 @@ This folder contains the scripts needed to fetch-link-merge-index the financial 
 
 ## the indexing process:
 - Working in `tools` folder
-- this `indexer/config.js` isn't required by the API service. DO NOT provide credentials to the API config, use a `.evn` file here under `tools` folder
+- this `indexer/config.js` isn't required by the API service. DO NOT provide credentials to the API config, use a `.env` file here under `tools` folder
 - Fetch data from providers' API, `ts-node <provider>Data.js`
   this will generate provider institution list in csv file into the `institutionDataPath` in [config.js](./config.js)
 - Manually managed institution mappings between providers is assumed to be available in the `institutionDataPath`, the schema assumed is in [merge.js](./tools/merge.js)
@@ -23,7 +23,7 @@ This folder contains the scripts needed to fetch-link-merge-index the financial 
 - the API will load the `version.txt` and use too, if it can't find it. it wll call `buildIndex` to make index from the `csv` file
 
 ## Add a new provider
-- Name the provider and add to the `providers` array at the top of [merge.js](application/dataProcessor/tools/merge.js)
+- Name the provider and add to the `providers` array at the top of [merge.js](./tools/merge.js)
 - Add a corresponding `processProvider` call near the bottom of `merge.js`
 - The order of the provider added is important, so that it can leverage the manual mappings and chain-map the same institutions across all the providers data
 - It should handle the new provider and generate the data and mappings to `main.csv`, otherwise, debug.
