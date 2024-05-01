@@ -14,8 +14,11 @@ const s3Client = config.S3Bucket
 const s3Prefix = `search/${config.Env}/`
 let defaultPref
 
-async function auth (req) {
-  const user = await http.get(`${config.AuthServiceEndpoint}auth`, { Authorization: req.headers.authorization })
+async function auth(req){
+  if(!req.headers.authorization){
+    return null;
+  }
+  const user = await http.get(`${config.AuthServiceEndpoint}auth`, {Authorization: req.headers.authorization})
     .catch(err => {
       logger.trace(`Auth failed with header value: ${req.headers.authorization}`, err)
     })
@@ -38,8 +41,8 @@ async function getPreference (req, noDefault) {
     } else if (noDefault) {
       return {}
     }
-  } else {
-    return null
+  }else if(noDefault){
+    return null;
   }
   return defaultPref || (defaultPref = await http.wget(config.DataBaseUrl + 'preferences/default.json'))
 }
