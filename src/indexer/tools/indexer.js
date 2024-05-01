@@ -8,8 +8,16 @@ function contentToWords (content) {
     return []
   }
   const words = content.split(' ').filter(w => w.trim()).slice(0, 10)
-  return words.map(w => w.trim().replace(/[^a-zA-Z0-9\&\'\(\)]/g, ''))
-  // return words.map(w => w.trim().replace(/[^a-zA-Z0-9\&\']/g, ''));
+  // words.map(w => w.trim().replace(/[^a-zA-Z0-9\&\']/g, ''));
+  const arr =  words.map(w => w.trim().replace(/[^a-zA-Z0-9\&\'\(\)]/g, '')).filter(w => w)
+  const shortform = arr.map(w => w[0]).join('');
+  arr.push(shortform)
+  if(content.indexOf('credit union') > 0){
+    arr.push('cu')
+  }else if(content.indexOf('federal credit union') > 0){
+    arr.push('fcu')
+  }
+  return arr;
 }
 
 function extractTerms (content) {
@@ -34,6 +42,7 @@ const betterNameSuffixes = [
   'bank',
   ' bank',
   ' credit union',
+  ' federal credit union',
   ' cu',
   ' fcu',
   ' investments'
